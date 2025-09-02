@@ -337,13 +337,26 @@ class NotificationManagementController extends Controller
      */
     private function sendEmailNotification(array $recipient, array $notificationData): void
     {
-        // For now, we'll create a simple email notification
-        // In a production system, you'd use Laravel's Mail system with proper templates
-        Log::info('Email notification sent', [
-            'recipient' => $recipient['email'],
-            'title' => $notificationData['title'],
-            'message' => $notificationData['message']
-        ]);
+        try {
+            // Send the email notification using Notification facade
+            \Illuminate\Support\Facades\Notification::route('mail', $recipient['email'])
+                ->notify(new \App\Notifications\AdminBroadcastNotification(
+                    $notificationData['title'],
+                    $notificationData['message'],
+                    $notificationData['data']['template'] ?? null
+                ));
+
+            Log::info('Email notification sent successfully', [
+                'recipient' => $recipient['email'],
+                'title' => $notificationData['title']
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Failed to send email notification', [
+                'recipient' => $recipient['email'],
+                'title' => $notificationData['title'],
+                'error' => $e->getMessage()
+            ]);
+        }
     }
 
     /**

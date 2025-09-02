@@ -12,11 +12,9 @@ class UserWelcomeNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
-    protected User $user;
-
-    public function __construct(User $user)
+    public function __construct()
     {
-        $this->user = $user;
+        // Don't store user in constructor to avoid serialization issues
     }
 
     public function via($notifiable): array
@@ -28,7 +26,7 @@ class UserWelcomeNotification extends Notification implements ShouldQueue
     {
         return (new MailMessage)
             ->subject('🎵 Welcome to The Harmony Singers Choir Portal! 🎵')
-            ->greeting('Hello ' . $this->user->name . '!')
+            ->greeting('Hello ' . $notifiable->name . '!')
             ->line('🎉 Congratulations! Your email has been verified and your account is now fully active.')
             ->line('Welcome to The Harmony Singers Choir Portal - your gateway to managing our musical community.')
             ->line('')
@@ -39,7 +37,7 @@ class UserWelcomeNotification extends Notification implements ShouldQueue
             ->line('• Coordinate events and performances')
             ->line('• Access choir resources and materials')
             ->line('')
-            ->action('🎭 Access Your Dashboard', route('dashboard'))
+            ->action('🎭 Access Your Dashboard', route('admin.dashboard'))
             ->line('')
             ->line('📞 **Need Help?**')
             ->line('Our support team is here to assist you with any questions about the portal.')
@@ -56,10 +54,10 @@ class UserWelcomeNotification extends Notification implements ShouldQueue
     public function toArray($notifiable): array
     {
         return [
-            'user_id' => $this->user->id,
-            'user_name' => $this->user->name,
+            'user_id' => $notifiable->id,
+            'user_name' => $notifiable->name,
             'type' => 'user_welcome',
-            'message' => 'Welcome ' . $this->user->name . '! Your account is now active.'
+            'message' => 'Welcome ' . $notifiable->name . '! Your account is now active.'
         ];
     }
 }
