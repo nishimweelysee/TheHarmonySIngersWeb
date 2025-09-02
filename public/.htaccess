@@ -1,0 +1,67 @@
+<IfModule mod_rewrite.c>
+    <IfModule mod_negotiation.c>
+        Options -MultiViews -Indexes
+    </IfModule>
+
+    RewriteEngine On
+
+    # Handle Authorization Header
+    RewriteCond %{HTTP:Authorization} .
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+    # Redirect Trailing Slashes If Not A Folder...
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_URI} (.+)/$
+    RewriteRule ^ %1 [L,R=301]
+
+    # Send Requests To Front Controller...
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^ index.php [L]
+</IfModule>
+
+# PHP Configuration for Large File Uploads - MUST be set at server level
+<IfModule mod_php.c>
+    php_value upload_max_filesize 100M
+    php_value post_max_size 200M
+    php_value max_execution_time 300
+    php_value max_input_time 300
+    php_value memory_limit 512M
+    php_value max_file_uploads 20
+    php_flag file_uploads On
+</IfModule>
+
+# Alternative PHP Configuration (for newer PHP versions)
+<IfModule mod_php8.c>
+    php_value upload_max_filesize 100M
+    php_value post_max_size 200M
+    php_value max_execution_time 300
+    php_value max_input_time 300
+    php_value memory_limit 512M
+    php_value max_file_uploads 20
+    php_flag file_uploads On
+</IfModule>
+
+# For FastCGI/PHP-FPM (common in modern setups)
+<IfModule mod_fastcgi.c>
+    <IfModule mod_fcgid.c>
+        FcgidMaxRequestLen 209715200
+    </IfModule>
+</IfModule>
+
+# For Nginx (if using as reverse proxy)
+<IfModule mod_proxy.c>
+    ProxyTimeout 300
+</IfModule>
+
+# Additional server configurations for large uploads
+<IfModule mod_headers.c>
+    Header set X-Upload-Max-Size "100M"
+    Header set X-Post-Max-Size "200M"
+</IfModule>
+
+# Increase timeout for large uploads
+<IfModule mod_reqtimeout.c>
+    RequestReadTimeout header=20-40,MinRate=500
+    RequestReadTimeout body=20,MinRate=500
+</IfModule>
