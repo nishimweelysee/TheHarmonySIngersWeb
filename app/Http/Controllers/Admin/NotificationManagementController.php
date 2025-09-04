@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Member;
 use App\Models\User;
 use App\Models\Notification as AppNotification;
+use App\Services\NotificationExportService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -41,7 +42,8 @@ class NotificationManagementController extends Controller
             $query->where('type', $request->type);
         }
 
-        $recentNotifications = $query->orderBy('created_at', 'desc')->paginate(20);
+        $perPage = $request->get('per_page', 10);
+        $recentNotifications = $query->orderBy('created_at', 'desc')->paginate($perPage);
 
         $stats = [
             'total_notifications' => AppNotification::count(),
@@ -51,6 +53,24 @@ class NotificationManagementController extends Controller
         ];
 
         return view('admin.notifications.index', compact('recentNotifications', 'stats'));
+    }
+
+    /**
+     * Export to Excel
+     */
+    public function exportExcel(Request $request)
+    {
+        $exportService = new NotificationExportService();
+        return $exportService->exportToExcel($request);
+    }
+
+    /**
+     * Export to PDF
+     */
+    public function exportPdf(Request $request)
+    {
+        $exportService = new NotificationExportService();
+        return $exportService->exportToPdf($request);
     }
 
     /**

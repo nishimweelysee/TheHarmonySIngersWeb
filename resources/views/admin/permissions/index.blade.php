@@ -140,7 +140,7 @@
 
     <div class="card-content">
         @if($permissions->count() > 0)
-        <div class="table-container enhanced-table">
+        <div class="table-container">
             <table class="data-table enhanced-table">
                 <thead>
                     <tr>
@@ -241,9 +241,13 @@
             </table>
         </div>
 
-        <div class="pagination-wrapper enhanced-pagination">
-            {{ $permissions->links() }}
-        </div>
+        <x-enhanced-pagination
+            :paginator="$permissions"
+            :show-per-page-selector="true"
+            :per-page-options="[5, 10, 20, 50, 100]"
+            :show-page-info="true"
+            :show-jump-to-page="true"
+            :max-visible-pages="7" />
         @else
         <div class="empty-state enhanced-empty-state">
             <div class="empty-icon">

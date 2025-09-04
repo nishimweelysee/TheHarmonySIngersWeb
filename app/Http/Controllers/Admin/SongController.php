@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Song;
+use App\Services\SongExportService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -56,7 +57,8 @@ class SongController extends Controller
             }
         }
 
-        $songs = $query->orderBy('title', 'asc')->paginate(20)->withQueryString();
+        $perPage = $request->get('per_page', 10);
+        $songs = $query->orderBy('title', 'asc')->paginate($perPage)->withQueryString();
 
         return view('admin.songs.index', compact('songs'));
     }
@@ -189,5 +191,23 @@ class SongController extends Controller
         $song->delete();
 
         return redirect()->route('admin.songs.index')->with('success', 'Song deleted successfully.');
+    }
+
+    /**
+     * Export songs to Excel
+     */
+    public function exportExcel(Request $request)
+    {
+        $exportService = new SongExportService();
+        return $exportService->exportToExcel($request);
+    }
+
+    /**
+     * Export songs to PDF
+     */
+    public function exportPdf(Request $request)
+    {
+        $exportService = new SongExportService();
+        return $exportService->exportToPdf($request);
     }
 }

@@ -38,14 +38,32 @@
         </div>
         <div class="header-actions">
             @permission('manage_practice_attendance')
-            <a href="{{ route('admin.practice-sessions.export-attendance', $practiceSession) }}"
-                class="btn btn-success enhanced-btn">
-                <div class="btn-content">
-                    <i class="fas fa-download"></i>
-                    <span>Export CSV</span>
-                </div>
-                <div class="btn-glow"></div>
-            </a>
+            <div class="export-actions">
+                <a href="{{ route('admin.practice-sessions.export-attendance.excel', $practiceSession) }}"
+                    class="btn btn-success enhanced-btn">
+                    <div class="btn-content">
+                        <i class="fas fa-file-excel"></i>
+                        <span>Excel</span>
+                    </div>
+                    <div class="btn-glow"></div>
+                </a>
+                <a href="{{ route('admin.practice-sessions.export-attendance.pdf', $practiceSession) }}"
+                    class="btn btn-danger enhanced-btn">
+                    <div class="btn-content">
+                        <i class="fas fa-file-pdf"></i>
+                        <span>PDF</span>
+                    </div>
+                    <div class="btn-glow"></div>
+                </a>
+                <a href="{{ route('admin.practice-sessions.export-attendance', $practiceSession) }}"
+                    class="btn btn-secondary enhanced-btn">
+                    <div class="btn-content">
+                        <i class="fas fa-file-csv"></i>
+                        <span>CSV</span>
+                    </div>
+                    <div class="btn-glow"></div>
+                </a>
+            </div>
             @endpermission
             <a href="{{ route('admin.practice-sessions.show', $practiceSession) }}" class="btn btn-secondary enhanced-btn">
                 <div class="btn-content">
@@ -222,7 +240,7 @@
             id="attendance-form">
             @csrf
 
-            <div class="table-container enhanced-table">
+            <div class="table-container">
                 <table class="data-table enhanced-table">
                     <thead>
                         <tr>

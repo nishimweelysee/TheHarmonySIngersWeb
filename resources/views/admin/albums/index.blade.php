@@ -148,7 +148,7 @@
 
     <div class="card-content">
         @if($albums->count() > 0)
-        <div class="table-container enhanced-table">
+        <div class="table-container">
             <table class="data-table enhanced-table">
                 <thead>
                     <tr class="table-header">
@@ -282,9 +282,13 @@
             </table>
         </div>
 
-        <div class="pagination-wrapper enhanced-pagination">
-            {{ $albums->links() }}
-        </div>
+        <x-enhanced-pagination
+            :paginator="$albums"
+            :show-per-page-selector="true"
+            :per-page-options="[5, 10, 20, 50, 100]"
+            :show-page-info="true"
+            :show-jump-to-page="true"
+            :max-visible-pages="7" />
         @else
         <div class="empty-state enhanced-empty-state">
             <div class="empty-icon">

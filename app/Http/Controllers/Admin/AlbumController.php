@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Album;
 use App\Models\Concert;
+use App\Services\AlbumExportService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -37,7 +38,8 @@ class AlbumController extends Controller
             });
         }
 
-        $albums = $query->latest()->paginate(20)->withQueryString();
+        $perPage = $request->get('per_page', 10);
+        $albums = $query->latest()->paginate($perPage)->withQueryString();
         return view('admin.albums.index', compact('albums'));
     }
 
@@ -122,5 +124,23 @@ class AlbumController extends Controller
 
         return redirect()->route('admin.albums.index')
             ->with('success', 'Album deleted successfully.');
+    }
+
+    /**
+     * Export albums to Excel
+     */
+    public function exportExcel(Request $request)
+    {
+        $exportService = new AlbumExportService();
+        return $exportService->exportToExcel($request);
+    }
+
+    /**
+     * Export albums to PDF
+     */
+    public function exportPdf(Request $request)
+    {
+        $exportService = new AlbumExportService();
+        return $exportService->exportToPdf($request);
     }
 }

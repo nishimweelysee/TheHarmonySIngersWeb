@@ -165,9 +165,9 @@
     </div>
 
     <!-- Enhanced Table -->
-    <div class="table-container enhanced-table">
+    <div class="table-container">
         @if($permissions->count() > 0)
-        <table class="data-table">
+        <table class="data-table enhanced-table">
             <thead>
                 <tr>
                     <th class="th-permission">
@@ -282,7 +282,8 @@
             <div class="summary-stats">
                 <span class="stat-item">
                     <i class="fas fa-list"></i>
-                    Showing {{ $permissions->firstItem() ?? 0 }} to {{ $permissions->lastItem() ?? 0 }} of {{ $permissions->total() }} permissions
+                    Showing {{ $permissions->firstItem() ?? 0 }} to {{ $permissions->lastItem() ?? 0 }} of
+                    {{ $permissions->total() }} permissions
                 </span>
                 <span class="stat-item">
                     <i class="fas fa-clock"></i>

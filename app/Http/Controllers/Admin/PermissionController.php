@@ -4,155 +4,119 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Permission;
-use App\Models\Role;
+use App\Services\PermissionExportService;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 
 class PermissionController extends Controller
 {
     /**
-     * Display a listing of the permissions.
+     * Display a listing of the resource.
      */
     public function index(Request $request)
     {
-        $query = Permission::with('roles');
+        $query = Permission::query()->with(["roles"]);
 
-        // Filter by module
-        if ($request->filled('module')) {
-            $query->where('module', strtolower($request->module));
-        }
-
-        // Filter by status
-        if ($request->filled('status')) {
-            if ($request->status === 'Active') {
-                $query->where('is_active', true);
-            } elseif ($request->status === 'Inactive') {
-                $query->where('is_active', false);
-            }
-        }
-
-        // Search by name or description
+        // Apply filters based on request
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('display_name', 'like', "%{$search}%")
-                    ->orWhere('description', 'like', "%{$search}%");
+                $q->where('name', 'like', '%' . $search . '%')
+                    ->orWhere('description', 'like', '%' . $search . '%');
             });
         }
 
-        $permissions = $query->orderBy('module')->orderBy('display_name')->paginate(20)->withQueryString();
-        $modules = Permission::distinct()->pluck('module')->sort();
+        $perPage = $request->get('per_page', 10);
+        $permissions = $query->paginate($perPage);
 
-        return view('admin.permissions.index', compact('permissions', 'modules'));
+        return view('admin.permissions.index', compact('permissions'));
     }
 
     /**
-     * Show the form for creating a new permission.
+     * Export to Excel
+     */
+    public function exportExcel(Request $request)
+    {
+        $exportService = new PermissionExportService();
+        return $exportService->exportToExcel($request);
+    }
+
+    /**
+     * Export to PDF
+     */
+    public function exportPdf(Request $request)
+    {
+        $exportService = new PermissionExportService();
+        return $exportService->exportToPdf($request);
+    }
+
+    /**
+     * Show the form for creating a new resource.
      */
     public function create()
     {
-        $modules = Permission::distinct()->pluck('module')->sort();
-        $roles = Role::active()->get();
-
-        return view('admin.permissions.create', compact('modules', 'roles'));
+        return view('admin.permissions.create');
     }
 
     /**
-     * Store a newly created permission in storage.
+     * Store a newly created resource in storage.
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'name' => ['required', 'string', 'max:255', 'unique:permissions'],
-            'display_name' => ['required', 'string', 'max:255'],
-            'module' => ['required', 'string', 'max:255'],
-            'description' => ['nullable', 'string'],
-            'is_active' => ['boolean'],
-            'roles' => ['array'],
-            'roles.*' => ['exists:roles,id'],
+        $validated = $request->validate([
+            'name' => 'required|string|max:255|unique:permissions,name',
+            'description' => 'nullable|string',
+            'module' => 'required|string|max:100',
+            'action' => 'required|string|max:100',
+            'is_active' => 'boolean',
         ]);
 
-        $permission = Permission::create([
-            'name' => $request->name,
-            'display_name' => $request->display_name,
-            'module' => $request->module,
-            'description' => $request->description,
-            'is_active' => $request->boolean('is_active', true),
-        ]);
+        $permission = Permission::create($validated);
 
-        if ($request->has('roles')) {
-            $permission->roles()->sync($request->roles);
-        }
-
-        return redirect()->route('admin.permissions.index')
+        return redirect()->route('admin.permissions.show', $permission)
             ->with('success', 'Permission created successfully.');
     }
 
     /**
-     * Display the specified permission.
+     * Display the specified resource.
      */
     public function show(Permission $permission)
     {
-        $permission->load('roles');
+        $permission->load(['roles']);
         return view('admin.permissions.show', compact('permission'));
     }
 
     /**
-     * Show the form for editing the specified permission.
+     * Show the form for editing the specified resource.
      */
     public function edit(Permission $permission)
     {
-        $modules = Permission::distinct()->pluck('module')->sort();
-        $roles = Role::active()->get();
-
-        return view('admin.permissions.edit', compact('permission', 'modules', 'roles'));
+        return view('admin.permissions.edit', compact('permission'));
     }
 
     /**
-     * Update the specified permission in storage.
+     * Update the specified resource in storage.
      */
     public function update(Request $request, Permission $permission)
     {
-        $request->validate([
-            'name' => ['required', 'string', 'max:255', Rule::unique('permissions')->ignore($permission->id)],
-            'display_name' => ['required', 'string', 'max:255'],
-            'module' => ['required', 'string', 'max:255'],
-            'description' => ['nullable', 'string'],
-            'is_active' => ['boolean'],
-            'roles' => ['array'],
-            'roles.*' => ['exists:roles,id'],
+        $validated = $request->validate([
+            'name' => 'required|string|max:255|unique:permissions,name,' . $permission->id,
+            'description' => 'nullable|string',
+            'module' => 'required|string|max:100',
+            'action' => 'required|string|max:100',
+            'is_active' => 'boolean',
         ]);
 
-        $permission->update([
-            'name' => $request->name,
-            'display_name' => $request->display_name,
-            'module' => $request->module,
-            'description' => $request->description,
-            'is_active' => $request->boolean('is_active', true),
-        ]);
+        $permission->update($validated);
 
-        if ($request->has('roles')) {
-            $permission->roles()->sync($request->roles);
-        } else {
-            $permission->roles()->detach();
-        }
-
-        return redirect()->route('admin.permissions.index')
+        return redirect()->route('admin.permissions.show', $permission)
             ->with('success', 'Permission updated successfully.');
     }
 
     /**
-     * Remove the specified permission from storage.
+     * Remove the specified resource from storage.
      */
     public function destroy(Permission $permission)
     {
-        // Check if permission is assigned to any roles
-        if ($permission->roles()->count() > 0) {
-            return redirect()->route('admin.permissions.index')
-                ->with('error', 'Cannot delete permission. It is assigned to one or more roles.');
-        }
-
         $permission->delete();
 
         return redirect()->route('admin.permissions.index')
@@ -160,15 +124,14 @@ class PermissionController extends Controller
     }
 
     /**
-     * Toggle the active status of a permission.
+     * Toggle the status of a permission.
      */
     public function toggleStatus(Permission $permission)
     {
         $permission->update(['is_active' => !$permission->is_active]);
 
-        $status = $permission->is_active ? 'activated' : 'deactivated';
-        return redirect()->route('admin.permissions.index')
-            ->with('success', "Permission {$status} successfully.");
+        return redirect()->back()
+            ->with('success', 'Permission status updated successfully.');
     }
 
     /**
@@ -177,12 +140,9 @@ class PermissionController extends Controller
     public function byModule($module)
     {
         $permissions = Permission::where('module', $module)
-            ->with('roles')
-            ->orderBy('display_name')
+            ->with(['roles'])
             ->paginate(20);
 
-        $modules = Permission::distinct()->pluck('module')->sort();
-
-        return view('admin.permissions.by-module', compact('permissions', 'modules', 'module'));
+        return view('admin.permissions.by-module', compact('permissions', 'module'));
     }
 }

@@ -186,7 +186,7 @@
                     <div class="permissions-summary">
                         <div class="summary-stats">
                             <div class="stat-item">
-                                <div class="stat-icon">
+                                <div class="stat-icon stat-icon-permissions">
                                     <i class="fas fa-key"></i>
                                 </div>
                                 <div class="stat-content">
@@ -195,7 +195,7 @@
                                 </div>
                             </div>
                             <div class="stat-item">
-                                <div class="stat-icon">
+                                <div class="stat-icon stat-icon-modules">
                                     <i class="fas fa-cube"></i>
                                 </div>
                                 <div class="stat-content">
@@ -291,7 +291,7 @@
                     <div class="users-summary">
                         <div class="summary-stats">
                             <div class="stat-item">
-                                <div class="stat-icon">
+                                <div class="stat-icon stat-icon-users">
                                     <i class="fas fa-users"></i>
                                 </div>
                                 <div class="stat-content">
@@ -419,6 +419,64 @@
 </div>
 
 @endsection
+
+@push('styles')
+<style>
+    /* Role Show Page - Colored Stat Icons */
+    .permissions-summary .stat-icon,
+    .users-summary .stat-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: var(--radius-xl);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        color: var(--white);
+        margin-bottom: var(--space-3);
+        transition: all 0.3s ease;
+    }
+
+    /* Key icon for permissions */
+    .stat-icon-permissions {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        box-shadow: 0 4px 15px rgba(23, 52, 120, 0.3);
+    }
+
+    /* Cube icon for modules */
+    .stat-icon-modules {
+        background: linear-gradient(135deg, var(--info) 0%, var(--info-dark) 100%);
+        box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+    }
+
+    /* Users icon */
+    .stat-icon-users {
+        background: linear-gradient(135deg, var(--success) 0%, var(--success-dark) 100%);
+        box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+    }
+
+    /* Hover effects */
+    .permissions-summary .stat-item:hover .stat-icon,
+    .users-summary .stat-item:hover .stat-icon {
+        transform: scale(1.1);
+    }
+
+    .permissions-summary .stat-item:hover .stat-icon-permissions {
+        background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+        box-shadow: 0 6px 20px rgba(23, 52, 120, 0.4);
+    }
+
+    .permissions-summary .stat-item:hover .stat-icon-modules {
+        background: linear-gradient(135deg, var(--info-dark) 0%, var(--info) 100%);
+        box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+    }
+
+    .users-summary .stat-item:hover .stat-icon-users {
+        background: linear-gradient(135deg, var(--success-dark) 0%, var(--success) 100%);
+        box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+    }
+</style>
+@endpush
 
 @push('scripts')
 <script>

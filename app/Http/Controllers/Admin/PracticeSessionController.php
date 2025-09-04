@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\PracticeSession;
 use App\Models\PracticeAttendance;
 use App\Models\Member;
+use App\Services\PracticeSessionExportService;
+use App\Services\AttendanceExportService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -25,41 +27,32 @@ class PracticeSessionController extends Controller
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('title', 'like', "%{$search}%")
-                    ->orWhere('description', 'like', "%{$search}%")
-                    ->orWhere('venue', 'like', "%{$search}%")
-                    ->orWhere('notes', 'like', "%{$search}%");
+                    ->orWhere('description', 'like', "%{$search}%");
             });
         }
 
-        // Status filter
-        if ($request->filled('status')) {
-            $query->where('status', $request->status);
-        }
-
-        // Date filter
-        if ($request->filled('date_filter')) {
-            switch ($request->date_filter) {
-                case 'today':
-                    $query->today();
-                    break;
-                case 'this_week':
-                    $query->thisWeek();
-                    break;
-                case 'upcoming':
-                    $query->upcoming();
-                    break;
-                case 'past':
-                    $query->where('practice_date', '<', now()->toDateString());
-                    break;
-            }
-        }
-
-        $practiceSessions = $query->orderBy('practice_date', 'desc')
-            ->orderBy('start_time', 'desc')
-            ->paginate(15)
-            ->withQueryString();
+        $perPage = $request->get('per_page', 10);
+        $practiceSessions = $query->latest()->paginate($perPage)->withQueryString();
 
         return view('admin.practice-sessions.index', compact('practiceSessions'));
+    }
+
+    /**
+     * Export to Excel
+     */
+    public function exportExcel(Request $request)
+    {
+        $exportService = new PracticeSessionExportService();
+        return $exportService->exportToExcel($request);
+    }
+
+    /**
+     * Export to PDF
+     */
+    public function exportPdf(Request $request)
+    {
+        $exportService = new PracticeSessionExportService();
+        return $exportService->exportToPdf($request);
     }
 
     /**
@@ -67,7 +60,8 @@ class PracticeSessionController extends Controller
      */
     public function create()
     {
-        return view('admin.practice-sessions.create');
+        $members = Member::active()->orderBy('first_name')->get();
+        return view('admin.practice-sessions.create', compact('members'));
     }
 
     /**
@@ -75,53 +69,39 @@ class PracticeSessionController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'practice_date' => 'required|date|after_or_equal:today',
+            'practice_date' => 'required|date',
             'start_time' => 'required|date_format:H:i',
             'end_time' => 'required|date_format:H:i|after:start_time',
-            'venue' => 'nullable|string|max:255',
-            'venue_address' => 'nullable|string',
-            'notes' => 'nullable|string'
+            'location' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'attendees' => 'nullable|array',
+            'attendees.*' => 'exists:members,id',
         ]);
 
-        try {
-            DB::beginTransaction();
+        $practiceSession = PracticeSession::create([
+            'title' => $validated['title'],
+            'practice_date' => $validated['practice_date'],
+            'start_time' => $validated['start_time'],
+            'end_time' => $validated['end_time'],
+            'location' => $validated['location'],
+            'description' => $validated['description'],
+        ]);
 
-            $practiceSession = PracticeSession::create($request->all());
-
-            // Create attendance records for all active singers
-            $activeSingers = Member::active()->singers()->get();
-            foreach ($activeSingers as $singer) {
+        // Create attendance records
+        if (!empty($validated['attendees'])) {
+            foreach ($validated['attendees'] as $memberId) {
                 PracticeAttendance::create([
                     'practice_session_id' => $practiceSession->id,
-                    'member_id' => $singer->id,
-                    'status' => 'absent' // Default status
+                    'member_id' => $memberId,
+                    'attended' => true,
                 ]);
             }
-
-            DB::commit();
-
-            Log::info('Practice session created', [
-                'session_id' => $practiceSession->id,
-                'title' => $practiceSession->title,
-                'date' => $practiceSession->practice_date,
-                'attendees_count' => $activeSingers->count()
-            ]);
-
-            return redirect()->route('admin.practice-sessions.index')
-                ->with('success', 'Practice session created successfully with ' . $activeSingers->count() . ' singers added.');
-        } catch (\Exception $e) {
-            DB::rollBack();
-            Log::error('Failed to create practice session', [
-                'error' => $e->getMessage(),
-                'request_data' => $request->all()
-            ]);
-
-            return back()->withInput()
-                ->with('error', 'Failed to create practice session. Please try again.');
         }
+
+        return redirect()->route('admin.practice-sessions.index')
+            ->with('success', 'Practice session created successfully.');
     }
 
     /**
@@ -129,12 +109,8 @@ class PracticeSessionController extends Controller
      */
     public function show(PracticeSession $practiceSession)
     {
-        $practiceSession->load(['attendances.member']);
-
-        $attendanceStats = $practiceSession->attendance_count;
-        $attendancePercentage = $practiceSession->attendance_percentage;
-
-        return view('admin.practice-sessions.show', compact('practiceSession', 'attendanceStats', 'attendancePercentage'));
+        $practiceSession->load('attendances.member');
+        return view('admin.practice-sessions.show', compact('practiceSession'));
     }
 
     /**
@@ -142,7 +118,9 @@ class PracticeSessionController extends Controller
      */
     public function edit(PracticeSession $practiceSession)
     {
-        return view('admin.practice-sessions.edit', compact('practiceSession'));
+        $members = Member::active()->orderBy('first_name')->get();
+        $practiceSession->load('attendances');
+        return view('admin.practice-sessions.edit', compact('practiceSession', 'members'));
     }
 
     /**
@@ -150,38 +128,40 @@ class PracticeSessionController extends Controller
      */
     public function update(Request $request, PracticeSession $practiceSession)
     {
-        $request->validate([
+        $validated = $request->validate([
             'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
             'practice_date' => 'required|date',
             'start_time' => 'required|date_format:H:i',
             'end_time' => 'required|date_format:H:i|after:start_time',
-            'venue' => 'nullable|string|max:255',
-            'venue_address' => 'nullable|string',
-            'notes' => 'nullable|string',
-            'status' => ['required', Rule::in(['scheduled', 'in_progress', 'completed', 'cancelled'])]
+            'location' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'attendees' => 'nullable|array',
+            'attendees.*' => 'exists:members,id',
         ]);
 
-        try {
-            $practiceSession->update($request->all());
+        $practiceSession->update([
+            'title' => $validated['title'],
+            'practice_date' => $validated['practice_date'],
+            'start_time' => $validated['start_time'],
+            'end_time' => $validated['end_time'],
+            'location' => $validated['location'],
+            'description' => $validated['description'],
+        ]);
 
-            Log::info('Practice session updated', [
-                'session_id' => $practiceSession->id,
-                'title' => $practiceSession->title,
-                'status' => $practiceSession->status
-            ]);
-
-            return redirect()->route('admin.practice-sessions.show', $practiceSession)
-                ->with('success', 'Practice session updated successfully.');
-        } catch (\Exception $e) {
-            Log::error('Failed to update practice session', [
-                'session_id' => $practiceSession->id,
-                'error' => $e->getMessage()
-            ]);
-
-            return back()->withInput()
-                ->with('error', 'Failed to update practice session. Please try again.');
+        // Update attendance records
+        $practiceSession->attendances()->delete();
+        if (!empty($validated['attendees'])) {
+            foreach ($validated['attendees'] as $memberId) {
+                PracticeAttendance::create([
+                    'practice_session_id' => $practiceSession->id,
+                    'member_id' => $memberId,
+                    'attended' => true,
+                ]);
+            }
         }
+
+        return redirect()->route('admin.practice-sessions.index')
+            ->with('success', 'Practice session updated successfully.');
     }
 
     /**
@@ -189,59 +169,21 @@ class PracticeSessionController extends Controller
      */
     public function destroy(PracticeSession $practiceSession)
     {
-        try {
-            $title = $practiceSession->title;
-            $practiceSession->delete();
+        $practiceSession->attendances()->delete();
+        $practiceSession->delete();
 
-            Log::info('Practice session deleted', [
-                'session_title' => $title
-            ]);
-
-            return redirect()->route('admin.practice-sessions.index')
-                ->with('success', 'Practice session deleted successfully.');
-        } catch (\Exception $e) {
-            Log::error('Failed to delete practice session', [
-                'session_id' => $practiceSession->id,
-                'error' => $e->getMessage()
-            ]);
-
-            return back()->with('error', 'Failed to delete practice session. Please try again.');
-        }
+        return redirect()->route('admin.practice-sessions.index')
+            ->with('success', 'Practice session deleted successfully.');
     }
 
     /**
-     * Show attendance management for a practice session.
+     * Show attendance for a specific practice session.
      */
     public function attendance(PracticeSession $practiceSession)
     {
-        $practiceSession->load(['attendances.member']);
-
-        // Get all active singers and merge with existing attendance
+        $practiceSession->load('attendances.member');
+        $members = Member::active()->orderBy('first_name')->get();
         $activeSingers = Member::active()->singers()->orderBy('first_name')->get();
-        $existingAttendances = $practiceSession->attendances->keyBy('member_id');
-
-        // Ensure all active singers have attendance records
-        foreach ($activeSingers as $singer) {
-            if (!$existingAttendances->has($singer->id)) {
-                PracticeAttendance::create([
-                    'practice_session_id' => $practiceSession->id,
-                    'member_id' => $singer->id,
-                    'status' => 'absent'
-                ]);
-            }
-        }
-
-        // Reload to get the updated attendance records
-        $practiceSession->load(['attendances.member']);
-
-        // Calculate current attendance statistics for preview
-        $currentAttendance = $practiceSession->attendances;
-        $attendanceStats = [
-            'present' => $currentAttendance->where('status', 'present')->count(),
-            'late' => $currentAttendance->where('status', 'late')->count(),
-            'absent' => $currentAttendance->where('status', 'absent')->count(),
-            'excused' => $currentAttendance->where('status', 'excused')->count(),
-        ];
 
         // Calculate voice part statistics
         $voicePartStats = [
@@ -251,7 +193,16 @@ class PracticeSessionController extends Controller
             'bass' => $activeSingers->where('voice_part', 'bass')->count(),
         ];
 
-        return view('admin.practice-sessions.attendance', compact('practiceSession', 'activeSingers', 'attendanceStats', 'voicePartStats'));
+        // Calculate attendance statistics
+        $attendanceStats = [
+            'present' => $practiceSession->attendances()->where('attended', true)->count(),
+            'late' => $practiceSession->attendances()->where('attended', true)->where('is_late', true)->count(),
+            'excused' => $practiceSession->attendances()->where('attended', false)->where('is_excused', true)->count(),
+            'absent' => $activeSingers->count() - $practiceSession->attendances()->where('attended', true)->count(),
+            'total' => $activeSingers->count(),
+        ];
+
+        return view('admin.practice-sessions.attendance', compact('practiceSession', 'members', 'activeSingers', 'voicePartStats', 'attendanceStats'));
     }
 
     /**
@@ -259,125 +210,85 @@ class PracticeSessionController extends Controller
      */
     public function updateAttendance(Request $request, PracticeSession $practiceSession)
     {
-        // Debug logging
-        Log::info('Attendance update request received', [
-            'session_id' => $practiceSession->id,
-            'request_data' => $request->all(),
-            'attendance_data' => $request->attendance ?? 'No attendance data'
+        $validated = $request->validate([
+            'selected_members' => 'nullable|array',
+            'selected_members.*' => 'exists:members,id',
+            'attendance' => 'nullable|array',
+            'attendance.*.reason' => 'nullable|string|max:255',
+            'attendance.*.notes' => 'nullable|string|max:500',
+            'attendance.*.status' => 'nullable|string|in:present,absent,late,excused',
+            'attendance.*.arrival_time' => 'nullable|date',
         ]);
 
-        // Validate the attendance data structure
-        $request->validate([
-            'attendance' => 'required|array',
-            'attendance.*.status' => 'required|in:present,absent,late,excused',
-            'attendance.*.reason' => 'nullable|string|max:500',
-            'attendance.*.notes' => 'nullable|string|max:1000'
-        ]);
+        // Delete existing attendance records
+        $practiceSession->attendances()->delete();
 
-        try {
-            DB::beginTransaction();
+        // Process selected members (for checkbox selection)
+        if (!empty($validated['selected_members'])) {
+            foreach ($validated['selected_members'] as $memberId) {
+                $attendanceData = $validated['attendance'][$memberId] ?? [];
 
-            foreach ($request->attendance as $memberId => $attendanceData) {
-                // Debug logging for each member
-                Log::info('Processing attendance for member', [
+                PracticeAttendance::create([
+                    'practice_session_id' => $practiceSession->id,
                     'member_id' => $memberId,
-                    'attendance_data' => $attendanceData,
-                    'member_id_type' => gettype($memberId)
+                    'status' => $attendanceData['status'] ?? 'present',
+                    'reason' => $attendanceData['reason'] ?? null,
+                    'notes' => $attendanceData['notes'] ?? null,
+                    'arrival_time' => $attendanceData['arrival_time'] ?? now(),
                 ]);
+            }
+        }
 
-                // Find or create attendance record
-                $attendance = PracticeAttendance::where('practice_session_id', $practiceSession->id)
-                    ->where('member_id', $memberId)
-                    ->first();
+        // Process attendance data for all members (including those not selected)
+        if (!empty($validated['attendance'])) {
+            foreach ($validated['attendance'] as $memberId => $attendanceData) {
+                // Skip if already processed in selected_members
+                if (in_array($memberId, $validated['selected_members'] ?? [])) {
+                    continue;
+                }
 
-                if ($attendance) {
-                    $attendance->update([
-                        'status' => $attendanceData['status'],
-                        'reason' => $attendanceData['reason'] ?? null,
-                        'notes' => $attendanceData['notes'] ?? null
-                    ]);
-
-                    // Record arrival time for present/late status
-                    if (in_array($attendanceData['status'], ['present', 'late']) && !$attendance->arrival_time) {
-                        $attendance->update(['arrival_time' => now()]);
-                    }
-                } else {
-                    // Create new attendance record if it doesn't exist
+                // Create attendance record for non-selected members with their status
+                if (!empty($attendanceData['status'])) {
                     PracticeAttendance::create([
                         'practice_session_id' => $practiceSession->id,
                         'member_id' => $memberId,
                         'status' => $attendanceData['status'],
                         'reason' => $attendanceData['reason'] ?? null,
                         'notes' => $attendanceData['notes'] ?? null,
-                        'arrival_time' => in_array($attendanceData['status'], ['present', 'late']) ? now() : null
+                        'arrival_time' => $attendanceData['arrival_time'] ?? null,
                     ]);
                 }
             }
-
-            DB::commit();
-
-            Log::info('Practice attendance updated', [
-                'session_id' => $practiceSession->id,
-                'attendances_count' => count($request->attendance)
-            ]);
-
-            return redirect()->route('admin.practice-sessions.attendance', $practiceSession)
-                ->with('success', 'Attendance updated successfully.');
-        } catch (\Exception $e) {
-            DB::rollBack();
-            Log::error('Failed to update practice attendance', [
-                'session_id' => $practiceSession->id,
-                'error' => $e->getMessage()
-            ]);
-
-            return back()->with('error', 'Failed to update attendance. Please try again.');
         }
+
+        return redirect()->route('admin.practice-sessions.attendance', $practiceSession)
+            ->with('success', 'Attendance updated successfully.');
     }
 
     /**
-     * Export attendance data for a practice session.
+     * Export attendance for a practice session (CSV).
      */
     public function exportAttendance(PracticeSession $practiceSession)
     {
-        $practiceSession->load(['attendances.member']);
+        $exportService = new AttendanceExportService();
+        return $exportService->exportToCsv($practiceSession);
+    }
 
-        $filename = 'practice_attendance_' . $practiceSession->practice_date->format('Y-m-d') . '_' . $practiceSession->id . '.csv';
+    /**
+     * Export attendance to Excel for a practice session.
+     */
+    public function exportAttendanceExcel(PracticeSession $practiceSession)
+    {
+        $exportService = new AttendanceExportService();
+        return $exportService->exportToExcel($practiceSession);
+    }
 
-        $headers = [
-            'Content-Type' => 'text/csv',
-            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
-        ];
-
-        $callback = function () use ($practiceSession) {
-            $file = fopen('php://output', 'w');
-
-            // CSV headers
-            fputcsv($file, [
-                'Member Name',
-                'Voice Part',
-                'Status',
-                'Reason',
-                'Arrival Time',
-                'Departure Time',
-                'Notes'
-            ]);
-
-            // CSV data
-            foreach ($practiceSession->attendances as $attendance) {
-                fputcsv($file, [
-                    $attendance->member->full_name,
-                    $attendance->member->voice_part ?? 'N/A',
-                    $attendance->status_label,
-                    $attendance->reason ?? '',
-                    $attendance->arrival_time ? $attendance->arrival_time->format('H:i') : '',
-                    $attendance->departure_time ? $attendance->departure_time->format('H:i') : '',
-                    $attendance->notes ?? ''
-                ]);
-            }
-
-            fclose($file);
-        };
-
-        return response()->stream($callback, 200, $headers);
+    /**
+     * Export attendance to PDF for a practice session.
+     */
+    public function exportAttendancePdf(PracticeSession $practiceSession)
+    {
+        $exportService = new AttendanceExportService();
+        return $exportService->exportToPdf($practiceSession);
     }
 }

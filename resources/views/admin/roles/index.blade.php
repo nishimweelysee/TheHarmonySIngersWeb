@@ -37,7 +37,7 @@
             </div>
         </div>
         <div class="header-actions">
-            @permission('create_roles')
+            @permission('manage_roles')
             <a href="{{ route('admin.roles.create') }}" class="btn btn-primary enhanced-btn">
                 <div class="btn-content">
                     <i class="fas fa-plus"></i>
@@ -134,7 +134,7 @@
 
     <div class="card-content">
         @if($roles->count() > 0)
-        <div class="table-container enhanced-table">
+        <div class="table-container">
             <table class="data-table enhanced-table">
                 <thead>
                     <tr>
@@ -239,9 +239,13 @@
             </table>
         </div>
 
-        <div class="pagination-wrapper enhanced-pagination">
-            {{ $roles->links() }}
-        </div>
+        <x-enhanced-pagination
+            :paginator="$roles"
+            :show-per-page-selector="true"
+            :per-page-options="[5, 10, 20, 50, 100]"
+            :show-page-info="true"
+            :show-jump-to-page="true"
+            :max-visible-pages="7" />
         @else
         <div class="empty-state enhanced-empty-state">
             <div class="empty-icon">
@@ -251,7 +255,7 @@
             <h3>No Roles Found</h3>
             <p>Get started by creating your first role to manage user permissions.</p>
             <div class="empty-actions">
-                @permission('create_roles')
+                @permission('manage_roles')
                 <a href="{{ route('admin.roles.create') }}" class="btn btn-primary">
                     <i class="fas fa-plus"></i>
                     Create Your First Role

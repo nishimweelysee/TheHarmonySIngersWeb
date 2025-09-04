@@ -201,12 +201,12 @@
                                 Currency
                             </label>
                             <select id="currency" name="currency" class="form-select enhanced-select">
-                                <option value="RWF" {{ old('currency', $contributionCampaign->currency) == 'RWF' ? 'selected' : '' }}>RWF (₣)</option>
-                                <option value="USD" {{ old('currency', $contributionCampaign->currency) == 'USD' ? 'selected' : '' }}>USD ($)</option>
-                                <option value="EUR" {{ old('currency', $contributionCampaign->currency) == 'EUR' ? 'selected' : '' }}>EUR (€)</option>
-                                <option value="GBP" {{ old('currency', $contributionCampaign->currency) == 'GBP' ? 'selected' : '' }}>GBP (£)</option>
-                                <option value="CAD" {{ old('currency', $contributionCampaign->currency) == 'CAD' ? 'selected' : '' }}>CAD (C$)</option>
-                                <option value="AUD" {{ old('currency', $contributionCampaign->currency) == 'AUD' ? 'selected' : '' }}>AUD (A$)</option>
+                                <option value="RWF" {{ old('currency', 'RWF') == 'RWF' ? 'selected' : '' }}>RWF (₣)</option>
+                                <option value="USD" {{ old('currency') == 'USD' ? 'selected' : '' }}>USD ($)</option>
+                                <option value="EUR" {{ old('currency') == 'EUR' ? 'selected' : '' }}>EUR (€)</option>
+                                <option value="GBP" {{ old('currency') == 'GBP' ? 'selected' : '' }}>GBP (£)</option>
+                                <option value="CAD" {{ old('currency') == 'CAD' ? 'selected' : '' }}>CAD (C$)</option>
+                                <option value="AUD" {{ old('currency') == 'AUD' ? 'selected' : '' }}>AUD (A$)</option>
                             </select>
                             <div class="select-glow"></div>
                             @error('currency')

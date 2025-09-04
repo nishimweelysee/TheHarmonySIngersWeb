@@ -29,7 +29,8 @@ class DonationController extends Controller
             });
         }
 
-        $donations = $query->latest()->paginate(20)->withQueryString();
+        $perPage = $request->get('per_page', 10);
+        $donations = $query->latest()->paginate($perPage)->withQueryString();
         return view('admin.donations.index', compact('donations'));
     }
 

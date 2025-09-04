@@ -37,6 +37,22 @@
             </div>
         </div>
         <div class="header-actions">
+            <div class="export-buttons">
+                <a href="{{ route('admin.instruments.export.excel', request()->query()) }}" class="btn btn-success enhanced-btn">
+                    <div class="btn-content">
+                        <i class="fas fa-file-excel"></i>
+                        <span>Export Excel</span>
+                    </div>
+                    <div class="btn-glow"></div>
+                </a>
+                <a href="{{ route('admin.instruments.export.pdf', request()->query()) }}" class="btn btn-danger enhanced-btn">
+                    <div class="btn-content">
+                        <i class="fas fa-file-pdf"></i>
+                        <span>Export PDF</span>
+                    </div>
+                    <div class="btn-glow"></div>
+                </a>
+            </div>
             @permission('create_instruments')
             <a href="{{ route('admin.instruments.create') }}" class="btn btn-primary enhanced-btn">
                 <div class="btn-content">
@@ -145,7 +161,7 @@
 
     <div class="card-content">
         @if($instruments->count() > 0)
-        <div class="table-container enhanced-table">
+        <div class="table-container">
             <table class="data-table enhanced-table">
                 <thead>
                     <tr>
@@ -251,9 +267,13 @@
             </table>
         </div>
 
-        <div class="pagination-wrapper enhanced-pagination">
-            {{ $instruments->links() }}
-        </div>
+        <x-enhanced-pagination
+            :paginator="$instruments"
+            :show-per-page-selector="true"
+            :per-page-options="[5, 10, 20, 50, 100]"
+            :show-page-info="true"
+            :show-jump-to-page="true"
+            :max-visible-pages="7" />
         @else
         <div class="empty-state enhanced-empty-state">
             <div class="empty-icon">

@@ -202,106 +202,86 @@ passionate performances and dedication to excellence.')
 <!-- About Section -->
 <section class="section">
     <div class="container">
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-16); align-items: center;">
+        <div class="about-section-grid">
             <!-- Content -->
-            <div>
-                <h2 class="section-title" style="text-align: left; margin-bottom: var(--space-6);">
+            <div class="about-content">
+                <h2 class="section-title about-title">
                     Why Choose The Harmony Singers?
                 </h2>
-                <p
-                    style="font-size: 1.125rem; color: var(--gray-600); margin-bottom: var(--space-8); line-height: 1.7;">
+                <p class="about-description">
                     With over {{ $stats['years_active'] }} years of musical excellence, we've built a reputation
                     for outstanding performances and a welcoming community atmosphere. Our diverse repertoire
                     and professional approach make every concert a memorable experience.
                 </p>
 
-                <div style="display: grid; gap: var(--space-4);">
-                    <div
-                        style="display: flex; align-items: center; gap: var(--space-4); padding: var(--space-4); background: var(--gray-50); border-radius: var(--radius-lg);">
-                        <div
-                            style="width: 48px; height: 48px; background: var(--primary); border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; color: white;">
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon feature-icon-primary">
                             <i class="fas fa-star"></i>
                         </div>
-                        <div>
-                            <h4 style="font-weight: 600; color: var(--gray-900); margin-bottom: var(--space-1);">
-                                Professional Quality</h4>
-                            <p style="color: var(--gray-600); font-size: 0.875rem;">Outstanding performances every time
-                            </p>
+                        <div class="feature-content">
+                            <h4 class="feature-title">Professional Quality</h4>
+                            <p class="feature-description">Outstanding performances every time</p>
                         </div>
                     </div>
 
-                    <div
-                        style="display: flex; align-items: center; gap: var(--space-4); padding: var(--space-4); background: var(--gray-50); border-radius: var(--radius-lg);">
-                        <div
-                            style="width: 48px; height: 48px; background: var(--accent); border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; color: white;">
+                    <div class="feature-card">
+                        <div class="feature-icon feature-icon-accent">
                             <i class="fas fa-users"></i>
                         </div>
-                        <div>
-                            <h4 style="font-weight: 600; color: var(--gray-900); margin-bottom: var(--space-1);">
-                                Welcoming Community</h4>
-                            <p style="color: var(--gray-600); font-size: 0.875rem;">Everyone is welcome to join our
-                                family</p>
+                        <div class="feature-content">
+                            <h4 class="feature-title">Welcoming Community</h4>
+                            <p class="feature-description">Everyone is welcome to join our family</p>
                         </div>
                     </div>
 
-                    <div
-                        style="display: flex; align-items: center; gap: var(--space-4); padding: var(--space-4); background: var(--gray-50); border-radius: var(--radius-lg);">
-                        <div
-                            style="width: 48px; height: 48px; background: var(--success); border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; color: white;">
+                    <div class="feature-card">
+                        <div class="feature-icon feature-icon-success">
                             <i class="fas fa-music"></i>
                         </div>
-                        <div>
-                            <h4 style="font-weight: 600; color: var(--gray-900); margin-bottom: var(--space-1);">Diverse
-                                Repertoire</h4>
-                            <p style="color: var(--gray-600); font-size: 0.875rem;">From classical to contemporary music
-                            </p>
+                        <div class="feature-content">
+                            <h4 class="feature-title">Diverse Repertoire</h4>
+                            <p class="feature-description">From classical to contemporary music</p>
                         </div>
                     </div>
                 </div>
             </div>
 
             <!-- Highlights Card -->
-            <div class="card">
+            <div class="concerts-card">
                 <div class="card-header">
-                    <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--gray-900);">
-                        Upcoming Concerts
-                    </h3>
+                    <h3 class="card-title">Upcoming Concerts</h3>
                 </div>
                 <div class="card-body">
                     @if($upcomingConcerts->count() > 0)
-                    <div style="display: grid; gap: var(--space-6);">
+                    <div class="concerts-list">
                         @foreach($upcomingConcerts->take(2) as $concert)
-                        <div style="border-left: 4px solid var(--primary); padding-left: var(--space-4);">
-                            <h4 style="font-weight: 600; color: var(--gray-900); margin-bottom: var(--space-1);">
-                                {{ $concert->title }}
-                            </h4>
-                            <p style="color: var(--gray-600); font-size: 0.875rem;">
-                                <i class="fas fa-calendar-alt"
-                                    style="margin-right: var(--space-2); color: var(--accent);"></i>
+                        <div class="concert-item">
+                            <h4 class="concert-title">{{ $concert->title }}</h4>
+                            <p class="concert-date">
+                                <i class="fas fa-calendar-alt"></i>
                                 @if($concert->date)
                                 {{ $concert->date->format('F j, Y') }}
                                 @else
                                 Date TBA
                                 @endif
                             </p>
-                            <p style="color: var(--gray-600); font-size: 0.875rem; margin-top: var(--space-1);">
-                                <i class="fas fa-map-marker-alt"
-                                    style="margin-right: var(--space-2); color: var(--accent);"></i>
+                            <p class="concert-venue">
+                                <i class="fas fa-map-marker-alt"></i>
                                 {{ $concert->venue }}
                             </p>
                         </div>
                         @endforeach
                     </div>
                     @else
-                    <div style="text-align: center; padding: var(--space-8); color: var(--gray-500);">
-                        <i class="fas fa-music"
-                            style="font-size: 3rem; margin-bottom: var(--space-4); opacity: 0.3;"></i>
+                    <div class="no-concerts">
+                        <i class="fas fa-music"></i>
                         <p>More concerts coming soon!</p>
                     </div>
                     @endif
                 </div>
                 <div class="card-footer">
-                    <a href="{{ route('concerts.index') }}" class="btn btn-primary" style="width: 100%;">
+                    <a href="{{ route('concerts.index') }}" class="btn btn-primary concerts-btn">
                         <i class="fas fa-calendar"></i>
                         View All Concerts
                     </a>
@@ -651,78 +631,85 @@ passionate performances and dedication to excellence.')
         text-decoration: none;
     }
 
-         .instagram-feed {
-         position: relative;
-         background: white;
-         overflow: hidden;
-         border-radius: 0 0 var(--radius-2xl) var(--radius-2xl);
-     }
+    .instagram-feed {
+        position: relative;
+        background: white;
+        overflow: hidden;
+        border-radius: 0 0 var(--radius-2xl) var(--radius-2xl);
+    }
 
-     .scroll-indicator {
-         position: absolute;
-         top: var(--space-4);
-         right: var(--space-4);
-         background: rgba(255, 255, 255, 0.95);
-         backdrop-filter: blur(10px);
-         padding: var(--space-2) var(--space-3);
-         border-radius: var(--radius-lg);
-         display: flex;
-         align-items: center;
-         gap: var(--space-2);
-         font-size: 0.75rem;
-         color: var(--gray-600);
-         z-index: 10;
-         box-shadow: var(--shadow-sm);
-         border: 1px solid rgba(255, 255, 255, 0.2);
-         animation: bounce 2s infinite;
-         transition: all 0.3s ease;
-         opacity: 1;
-         transform: translateY(0);
-     }
+    .scroll-indicator {
+        position: absolute;
+        top: var(--space-4);
+        right: var(--space-4);
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        padding: var(--space-2) var(--space-3);
+        border-radius: var(--radius-lg);
+        display: flex;
+        align-items: center;
+        gap: var(--space-2);
+        font-size: 0.75rem;
+        color: var(--gray-600);
+        z-index: 10;
+        box-shadow: var(--shadow-sm);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        animation: bounce 2s infinite;
+        transition: all 0.3s ease;
+        opacity: 1;
+        transform: translateY(0);
+    }
 
-     .scroll-indicator i {
-         color: var(--primary);
-         font-size: 0.875rem;
-     }
+    .scroll-indicator i {
+        color: var(--primary);
+        font-size: 0.875rem;
+    }
 
-     @keyframes bounce {
-         0%, 20%, 50%, 80%, 100% {
-             transform: translateY(0);
-         }
-         40% {
-             transform: translateY(-4px);
-         }
-         60% {
-             transform: translateY(-2px);
-         }
-     }
+    @keyframes bounce {
 
-     .instagram-iframe {
-         border: none;
-         border-radius: 0;
-         display: block;
-         overflow-y: auto;
-         overflow-x: hidden;
-     }
+        0%,
+        20%,
+        50%,
+        80%,
+        100% {
+            transform: translateY(0);
+        }
 
-     /* Custom scrollbar for Instagram iframe */
-     .instagram-iframe::-webkit-scrollbar {
-         width: 8px;
-     }
+        40% {
+            transform: translateY(-4px);
+        }
 
-     .instagram-iframe::-webkit-scrollbar-track {
-         background: var(--gray-100);
-         border-radius: 4px;
-     }
+        60% {
+            transform: translateY(-2px);
+        }
+    }
 
-     .instagram-iframe::-webkit-scrollbar-thumb {
-         background: linear-gradient(135deg, #E4405F 0%, #C13584 50%, #833AB4 100%);
-         border-radius: 4px;
-     }
+    .instagram-iframe {
+        border: none;
+        border-radius: 0;
+        display: block;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
 
-     .instagram-iframe::-webkit-scrollbar-thumb:hover {
-         background: linear-gradient(135deg, #C13584 0%, #833AB4 50%, #E4405F 100%);
-     }
+    /* Custom scrollbar for Instagram iframe */
+    .instagram-iframe::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .instagram-iframe::-webkit-scrollbar-track {
+        background: var(--gray-100);
+        border-radius: 4px;
+    }
+
+    .instagram-iframe::-webkit-scrollbar-thumb {
+        background: linear-gradient(135deg, #E4405F 0%, #C13584 50%, #833AB4 100%);
+        border-radius: 4px;
+    }
+
+    .instagram-iframe::-webkit-scrollbar-thumb:hover {
+        background: linear-gradient(135deg, #C13584 0%, #833AB4 50%, #E4405F 100%);
+    }
 
     .instagram-highlights {
         display: flex;
@@ -864,6 +851,158 @@ passionate performances and dedication to excellence.')
         margin-bottom: var(--space-8);
     }
 
+    /* About Section Styles */
+    .about-section-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: var(--space-16);
+        align-items: start;
+    }
+
+    .about-content {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-8);
+    }
+
+    .about-title {
+        text-align: left;
+        margin-bottom: 0;
+    }
+
+    .about-description {
+        font-size: 1.125rem;
+        color: var(--gray-600);
+        line-height: 1.7;
+        margin: 0;
+    }
+
+    .features-grid {
+        display: grid;
+        gap: var(--space-4);
+    }
+
+    .feature-card {
+        display: flex;
+        align-items: center;
+        gap: var(--space-4);
+        padding: var(--space-4);
+        background: var(--gray-50);
+        border-radius: var(--radius-lg);
+        transition: var(--transition);
+    }
+
+    .feature-card:hover {
+        background: var(--gray-100);
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+    }
+
+    .feature-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: var(--radius-lg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        flex-shrink: 0;
+    }
+
+    .feature-icon-primary {
+        background: var(--primary);
+    }
+
+    .feature-icon-accent {
+        background: var(--accent);
+    }
+
+    .feature-icon-success {
+        background: var(--success);
+    }
+
+    .feature-content {
+        flex: 1;
+    }
+
+    .feature-title {
+        font-weight: 600;
+        color: var(--gray-900);
+        margin-bottom: var(--space-1);
+        font-size: 1rem;
+    }
+
+    .feature-description {
+        color: var(--gray-600);
+        font-size: 0.875rem;
+        margin: 0;
+    }
+
+    .concerts-card {
+        position: sticky;
+        top: calc(5rem + var(--space-4));
+    }
+
+    .card-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--gray-900);
+        margin: 0;
+    }
+
+    .concerts-list {
+        display: grid;
+        gap: var(--space-6);
+    }
+
+    .concert-item {
+        border-left: 4px solid var(--primary);
+        padding-left: var(--space-4);
+    }
+
+    .concert-title {
+        font-weight: 600;
+        color: var(--gray-900);
+        margin-bottom: var(--space-1);
+        font-size: 1rem;
+    }
+
+    .concert-date,
+    .concert-venue {
+        color: var(--gray-600);
+        font-size: 0.875rem;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: var(--space-2);
+    }
+
+    .concert-date {
+        margin-bottom: var(--space-1);
+    }
+
+    .concert-date i,
+    .concert-venue i {
+        color: var(--accent);
+        width: 16px;
+    }
+
+    .no-concerts {
+        text-align: center;
+        padding: var(--space-8);
+        color: var(--gray-500);
+    }
+
+    .no-concerts i {
+        font-size: 3rem;
+        margin-bottom: var(--space-4);
+        opacity: 0.3;
+    }
+
+    .concerts-btn {
+        width: 100%;
+    }
+
     @media (max-width: 768px) {
         .photo-slideshow {
             height: 300px;
@@ -920,6 +1059,64 @@ passionate performances and dedication to excellence.')
             width: 100%;
             max-width: 300px;
         }
+
+        /* About Section Responsive */
+        .about-section-grid {
+            grid-template-columns: 1fr;
+            gap: var(--space-12);
+        }
+
+        .about-content {
+            gap: var(--space-6);
+        }
+
+        .about-title {
+            text-align: center;
+            font-size: 2rem;
+        }
+
+        .about-description {
+            font-size: 1rem;
+            text-align: center;
+        }
+
+        .features-grid {
+            gap: var(--space-3);
+        }
+
+        .feature-card {
+            padding: var(--space-3);
+        }
+
+        .feature-icon {
+            width: 40px;
+            height: 40px;
+        }
+
+        .feature-title {
+            font-size: 0.9rem;
+        }
+
+        .feature-description {
+            font-size: 0.8rem;
+        }
+
+        .concerts-card {
+            position: static;
+        }
+
+        .card-title {
+            font-size: 1.125rem;
+        }
+
+        .concert-title {
+            font-size: 0.9rem;
+        }
+
+        .concert-date,
+        .concert-venue {
+            font-size: 0.8rem;
+        }
     }
 
     @media (max-width: 480px) {
@@ -970,26 +1167,78 @@ passionate performances and dedication to excellence.')
             font-size: 1.125rem;
         }
 
-                 .follow-btn {
-             padding: var(--space-2) var(--space-4);
-             font-size: 0.875rem;
-         }
+        .follow-btn {
+            padding: var(--space-2) var(--space-4);
+            font-size: 0.875rem;
+        }
 
-         .scroll-indicator {
-             top: var(--space-2);
-             right: var(--space-2);
-             padding: var(--space-1) var(--space-2);
-             font-size: 0.625rem;
-         }
+        .scroll-indicator {
+            top: var(--space-2);
+            right: var(--space-2);
+            padding: var(--space-1) var(--space-2);
+            font-size: 0.625rem;
+        }
 
-         .scroll-indicator span {
-             display: none;
-         }
+        .scroll-indicator span {
+            display: none;
+        }
 
-         .scroll-indicator i {
-             font-size: 0.75rem;
-         }
-     }
+        .scroll-indicator i {
+            font-size: 0.75rem;
+        }
+
+        /* About Section Mobile Responsive */
+        .about-section-grid {
+            gap: var(--space-8);
+        }
+
+        .about-title {
+            font-size: 1.75rem;
+        }
+
+        .about-description {
+            font-size: 0.9rem;
+        }
+
+        .features-grid {
+            gap: var(--space-2);
+        }
+
+        .feature-card {
+            padding: var(--space-2);
+            gap: var(--space-3);
+        }
+
+        .feature-icon {
+            width: 36px;
+            height: 36px;
+        }
+
+        .feature-title {
+            font-size: 0.85rem;
+        }
+
+        .feature-description {
+            font-size: 0.75rem;
+        }
+
+        .card-title {
+            font-size: 1rem;
+        }
+
+        .concert-title {
+            font-size: 0.85rem;
+        }
+
+        .concert-date,
+        .concert-venue {
+            font-size: 0.75rem;
+        }
+
+        .no-concerts i {
+            font-size: 2rem;
+        }
+    }
 </style>
 
 <script>
@@ -1031,33 +1280,33 @@ passionate performances and dedication to excellence.')
         changeSlide(1);
     }, 5000);
 
-         // Initialize first slide
-     document.addEventListener('DOMContentLoaded', function() {
-         showSlide(0);
-         
-         // Hide scroll indicator after user interaction
-         const scrollIndicator = document.querySelector('.scroll-indicator');
-         const instagramIframe = document.querySelector('.instagram-iframe');
-         
-         if (scrollIndicator && instagramIframe) {
-             // Hide indicator after 5 seconds
-             setTimeout(() => {
-                 scrollIndicator.style.opacity = '0';
-                 scrollIndicator.style.transform = 'translateY(-10px)';
-                 setTimeout(() => {
-                     scrollIndicator.style.display = 'none';
-                 }, 300);
-             }, 5000);
-             
-             // Hide indicator when iframe is clicked/touched
-             instagramIframe.addEventListener('click', () => {
-                 scrollIndicator.style.opacity = '0';
-                 scrollIndicator.style.transform = 'translateY(-10px)';
-                 setTimeout(() => {
-                     scrollIndicator.style.display = 'none';
-                 }, 300);
-             });
-         }
-     });
+    // Initialize first slide
+    document.addEventListener('DOMContentLoaded', function() {
+        showSlide(0);
+
+        // Hide scroll indicator after user interaction
+        const scrollIndicator = document.querySelector('.scroll-indicator');
+        const instagramIframe = document.querySelector('.instagram-iframe');
+
+        if (scrollIndicator && instagramIframe) {
+            // Hide indicator after 5 seconds
+            setTimeout(() => {
+                scrollIndicator.style.opacity = '0';
+                scrollIndicator.style.transform = 'translateY(-10px)';
+                setTimeout(() => {
+                    scrollIndicator.style.display = 'none';
+                }, 300);
+            }, 5000);
+
+            // Hide indicator when iframe is clicked/touched
+            instagramIframe.addEventListener('click', () => {
+                scrollIndicator.style.opacity = '0';
+                scrollIndicator.style.transform = 'translateY(-10px)';
+                setTimeout(() => {
+                    scrollIndicator.style.display = 'none';
+                }, 300);
+            });
+        }
+    });
 </script>
 @endsection

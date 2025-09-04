@@ -172,7 +172,8 @@
                             <div class="file-upload-container enhanced-upload" id="photoUploadContainer">
                                 @if($member->profile_photo)
                                 <div class="upload-preview">
-                                    <img src="{{ Storage::url($member->profile_photo) }}" alt="Current Profile Photo" id="currentPhoto">
+                                    <img src="{{ Storage::url($member->profile_photo) }}" alt="Current Profile Photo"
+                                        id="currentPhoto">
                                     <button type="button" class="remove-file" onclick="removeCurrentPhoto()">
                                         <i class="fas fa-times"></i>
                                     </button>
@@ -184,8 +185,9 @@
                                     <small>or drag and drop</small>
                                 </div>
                                 @endif
-                                <input type="file" id="profile_photo" name="profile_photo" class="file-input enhanced-file-input"
-                                    accept="image/*" onchange="previewPhoto(this)">
+                                <input type="file" id="profile_photo" name="profile_photo"
+                                    class="file-input enhanced-file-input" accept="image/*"
+                                    onchange="previewPhoto(this)">
                             </div>
                             @error('profile_photo')
                             <div class="error-message enhanced-error">
@@ -231,8 +233,10 @@
                             </label>
                             <select id="type" name="type" class="form-select enhanced-select" required>
                                 <option value="">Select Type</option>
-                                <option value="singer" {{ old('type', $member->type) == 'singer' ? 'selected' : '' }}>Singer</option>
-                                <option value="general" {{ old('type', $member->type) == 'general' ? 'selected' : '' }}>General Member</option>
+                                <option value="singer" {{ old('type', $member->type) == 'singer' ? 'selected' : '' }}>
+                                    Singer</option>
+                                <option value="general" {{ old('type', $member->type) == 'general' ? 'selected' : '' }}>
+                                    General Member</option>
                             </select>
                             <div class="select-glow"></div>
                             @error('type')
@@ -250,10 +254,18 @@
                             </label>
                             <select id="voice_part" name="voice_part" class="form-select enhanced-select">
                                 <option value="">Select Voice Part</option>
-                                <option value="soprano" {{ old('voice_part', $member->voice_part) == 'soprano' ? 'selected' : '' }}>Soprano</option>
-                                <option value="alto" {{ old('voice_part', $member->voice_part) == 'alto' ? 'selected' : '' }}>Alto</option>
-                                <option value="tenor" {{ old('voice_part', $member->voice_part) == 'tenor' ? 'selected' : '' }}>Tenor</option>
-                                <option value="bass" {{ old('voice_part', $member->voice_part) == 'bass' ? 'selected' : '' }}>Bass</option>
+                                <option value="soprano"
+                                    {{ old('voice_part', $member->voice_part) == 'soprano' ? 'selected' : '' }}>Soprano
+                                </option>
+                                <option value="alto"
+                                    {{ old('voice_part', $member->voice_part) == 'alto' ? 'selected' : '' }}>Alto
+                                </option>
+                                <option value="tenor"
+                                    {{ old('voice_part', $member->voice_part) == 'tenor' ? 'selected' : '' }}>Tenor
+                                </option>
+                                <option value="bass"
+                                    {{ old('voice_part', $member->voice_part) == 'bass' ? 'selected' : '' }}>Bass
+                                </option>
                             </select>
                             <div class="select-glow"></div>
                             @error('voice_part')
@@ -283,12 +295,14 @@
                         </div>
 
                         <div class="form-group enhanced-group">
-                            <label for="is_active" class="form-label enhanced-label">
+                            <label class="form-label enhanced-label">
                                 <i class="fas fa-toggle-on"></i>
-                                Status
+                                Member Status
                             </label>
                             <div class="checkbox-group enhanced-checkbox">
-                                <input type="checkbox" id="is_active" name="is_active" value="1" class="enhanced-checkbox-input"
+                                <input type="hidden" name="is_active" value="0">
+                                <input type="checkbox" id="is_active" name="is_active" value="1"
+                                    class="enhanced-checkbox-input"
                                     {{ old('is_active', $member->is_active) ? 'checked' : '' }}>
                                 <label for="is_active" class="checkbox-label enhanced-label">
                                     <div class="checkbox-custom"></div>
@@ -330,50 +344,50 @@
 
 @push('scripts')
 <script>
-    // File upload preview functionality
-    function previewPhoto(input) {
-        const container = document.getElementById('photoUploadContainer');
-        const currentPhoto = document.getElementById('currentPhoto');
+// File upload preview functionality
+function previewPhoto(input) {
+    const container = document.getElementById('photoUploadContainer');
+    const currentPhoto = document.getElementById('currentPhoto');
 
-        if (input.files && input.files[0]) {
-            const reader = new FileReader();
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
 
-            reader.onload = function(e) {
-                // Remove current photo if exists
-                if (currentPhoto) {
-                    currentPhoto.remove();
-                }
+        reader.onload = function(e) {
+            // Remove current photo if exists
+            if (currentPhoto) {
+                currentPhoto.remove();
+            }
 
-                // Create new preview
-                const preview = document.createElement('div');
-                preview.className = 'upload-preview';
-                preview.innerHTML = `
+            // Create new preview
+            const preview = document.createElement('div');
+            preview.className = 'upload-preview';
+            preview.innerHTML = `
                 <img src="${e.target.result}" alt="Photo Preview">
                 <button type="button" class="remove-file" onclick="removePhoto()">
                     <i class="fas fa-times"></i>
                 </button>
             `;
 
-                // Clear container and add preview
-                container.innerHTML = '';
-                container.appendChild(preview);
-                container.appendChild(input);
-            };
+            // Clear container and add preview
+            container.innerHTML = '';
+            container.appendChild(preview);
+            container.appendChild(input);
+        };
 
-            reader.readAsDataURL(input.files[0]);
-        }
+        reader.readAsDataURL(input.files[0]);
     }
+}
 
-    // Remove current photo
-    function removeCurrentPhoto() {
-        const container = document.getElementById('photoUploadContainer');
-        const input = container.querySelector('input[type="file"]');
+// Remove current photo
+function removeCurrentPhoto() {
+    const container = document.getElementById('photoUploadContainer');
+    const input = container.querySelector('input[type="file"]');
 
-        // Clear the file input
-        input.value = '';
+    // Clear the file input
+    input.value = '';
 
-        // Show upload placeholder
-        container.innerHTML = `
+    // Show upload placeholder
+    container.innerHTML = `
         <div class="upload-placeholder">
             <i class="fas fa-cloud-upload-alt"></i>
             <span>Click to upload new photo</span>
@@ -382,18 +396,18 @@
         <input type="file" id="profile_photo" name="profile_photo" class="file-input enhanced-file-input" 
             accept="image/*" onchange="previewPhoto(this)">
     `;
-    }
+}
 
-    // Remove uploaded photo
-    function removePhoto() {
-        const container = document.getElementById('photoUploadContainer');
-        const input = container.querySelector('input[type="file"]');
+// Remove uploaded photo
+function removePhoto() {
+    const container = document.getElementById('photoUploadContainer');
+    const input = container.querySelector('input[type="file"]');
 
-        // Clear the file input
-        input.value = '';
+    // Clear the file input
+    input.value = '';
 
-        // Show upload placeholder
-        container.innerHTML = `
+    // Show upload placeholder
+    container.innerHTML = `
         <div class="upload-placeholder">
             <i class="fas fa-cloud-upload-alt"></i>
             <span>Click to upload new photo</span>
@@ -402,92 +416,94 @@
         <input type="file" id="profile_photo" name="profile_photo" class="file-input enhanced-file-input" 
             accept="image/*" onchange="previewPhoto(this)">
     `;
-    }
+}
 
-    // Drag and drop functionality
-    document.addEventListener('DOMContentLoaded', function() {
-        const container = document.getElementById('photoUploadContainer');
+// Drag and drop functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const container = document.getElementById('photoUploadContainer');
 
-        container.addEventListener('dragover', function(e) {
-            e.preventDefault();
-            container.classList.add('dragover');
-        });
-
-        container.addEventListener('dragleave', function(e) {
-            e.preventDefault();
-            container.classList.remove('dragover');
-        });
-
-        container.addEventListener('drop', function(e) {
-            e.preventDefault();
-            container.classList.remove('dragover');
-
-            const files = e.dataTransfer.files;
-            if (files.length > 0) {
-                const input = container.querySelector('input[type="file"]');
-                input.files = files;
-                previewPhoto(input);
-            }
-        });
+    container.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        container.classList.add('dragover');
     });
 
-    // Form validation
-    document.addEventListener('DOMContentLoaded', function() {
-        const form = document.querySelector('.member-form');
+    container.addEventListener('dragleave', function(e) {
+        e.preventDefault();
+        container.classList.remove('dragover');
+    });
 
-        form.addEventListener('submit', function(e) {
-            let isValid = true;
-            const requiredFields = form.querySelectorAll('[required]');
+    container.addEventListener('drop', function(e) {
+        e.preventDefault();
+        container.classList.remove('dragover');
 
-            // Clear previous error states
-            form.querySelectorAll('.enhanced-input, .enhanced-select, .enhanced-textarea').forEach(field => {
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            const input = container.querySelector('input[type="file"]');
+            input.files = files;
+            previewPhoto(input);
+        }
+    });
+});
+
+// Form validation
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('.member-form');
+
+    form.addEventListener('submit', function(e) {
+        let isValid = true;
+        const requiredFields = form.querySelectorAll('[required]');
+
+        // Clear previous error states
+        form.querySelectorAll('.enhanced-input, .enhanced-select, .enhanced-textarea').forEach(
+            field => {
                 field.classList.remove('error');
             });
 
-            // Validate required fields
-            requiredFields.forEach(field => {
-                if (!field.value.trim()) {
-                    field.classList.add('error');
-                    isValid = false;
-                }
-            });
-
-            // Validate email format
-            const emailField = form.querySelector('#email');
-            if (emailField.value && !isValidEmail(emailField.value)) {
-                emailField.classList.add('error');
+        // Validate required fields
+        requiredFields.forEach(field => {
+            if (!field.value.trim()) {
+                field.classList.add('error');
                 isValid = false;
-            }
-
-            if (!isValid) {
-                e.preventDefault();
-                // Show error message
-                const errorDiv = document.createElement('div');
-                errorDiv.className = 'form-error enhanced-error';
-                errorDiv.innerHTML = '<i class="fas fa-exclamation-triangle"></i><span>Please fill in all required fields correctly.</span>';
-
-                const existingError = form.querySelector('.form-error');
-                if (existingError) {
-                    existingError.remove();
-                }
-
-                form.insertBefore(errorDiv, form.firstChild);
-
-                // Scroll to first error
-                const firstError = form.querySelector('.error');
-                if (firstError) {
-                    firstError.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'center'
-                    });
-                }
             }
         });
 
-        function isValidEmail(email) {
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            return emailRegex.test(email);
+        // Validate email format
+        const emailField = form.querySelector('#email');
+        if (emailField.value && !isValidEmail(emailField.value)) {
+            emailField.classList.add('error');
+            isValid = false;
+        }
+
+        if (!isValid) {
+            e.preventDefault();
+            // Show error message
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'form-error enhanced-error';
+            errorDiv.innerHTML =
+                '<i class="fas fa-exclamation-triangle"></i><span>Please fill in all required fields correctly.</span>';
+
+            const existingError = form.querySelector('.form-error');
+            if (existingError) {
+                existingError.remove();
+            }
+
+            form.insertBefore(errorDiv, form.firstChild);
+
+            // Scroll to first error
+            const firstError = form.querySelector('.error');
+            if (firstError) {
+                firstError.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center'
+                });
+            }
         }
     });
+
+    function isValidEmail(email) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+    }
+});
 </script>
 @endpush

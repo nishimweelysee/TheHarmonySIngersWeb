@@ -26,8 +26,8 @@
                         <span class="stat-label">Total Plans</span>
                     </div>
                     <div class="stat-item">
-                        <span class="stat-number">{{ $plans->where('status', 'in_progress')->count() }}</span>
-                        <span class="stat-label">In Progress</span>
+                        <span class="stat-number">{{ $plans->where('status', 'active')->count() }}</span>
+                        <span class="stat-label">Active</span>
                     </div>
                     <div class="stat-item">
                         <span class="stat-number">{{ $plans->where('status', 'completed')->count() }}</span>
@@ -37,6 +37,22 @@
             </div>
         </div>
         <div class="header-actions">
+            <div class="export-buttons">
+                <a href="{{ route('admin.plans.export.excel', request()->query()) }}" class="btn btn-success enhanced-btn">
+                    <div class="btn-content">
+                        <i class="fas fa-file-excel"></i>
+                        <span>Export Excel</span>
+                    </div>
+                    <div class="btn-glow"></div>
+                </a>
+                <a href="{{ route('admin.plans.export.pdf', request()->query()) }}" class="btn btn-danger enhanced-btn">
+                    <div class="btn-content">
+                        <i class="fas fa-file-pdf"></i>
+                        <span>Export PDF</span>
+                    </div>
+                    <div class="btn-glow"></div>
+                </a>
+            </div>
             @permission('create_plans')
             <a href="{{ route('admin.plans.create') }}" class="btn btn-primary enhanced-btn">
                 <div class="btn-content">
@@ -95,8 +111,8 @@
                         <label class="filter-label">Status</label>
                         <select name="status" class="filter-select enhanced-select">
                             <option value="">All Status</option>
-                            <option value="planned" {{ request('status') === 'planned' ? 'selected' : '' }}>Planned</option>
-                            <option value="in_progress" {{ request('status') === 'in_progress' ? 'selected' : '' }}>In Progress</option>
+                            <option value="draft" {{ request('status') === 'draft' ? 'selected' : '' }}>Draft</option>
+                            <option value="active" {{ request('status') === 'active' ? 'selected' : '' }}>Active</option>
                             <option value="completed" {{ request('status') === 'completed' ? 'selected' : '' }}>Completed</option>
                             <option value="cancelled" {{ request('status') === 'cancelled' ? 'selected' : '' }}>Cancelled</option>
                         </select>
@@ -145,7 +161,7 @@
 
     <div class="card-content">
         @if($plans->count() > 0)
-        <div class="table-container enhanced-table">
+        <div class="table-container">
             <table class="data-table enhanced-table">
                 <thead>
                     <tr>
@@ -254,9 +270,13 @@
             </table>
         </div>
 
-        <div class="pagination-wrapper enhanced-pagination">
-            {{ $plans->links() }}
-        </div>
+        <x-enhanced-pagination
+            :paginator="$plans"
+            :show-per-page-selector="true"
+            :per-page-options="[5, 10, 20, 50, 100]"
+            :show-page-info="true"
+            :show-jump-to-page="true"
+            :max-visible-pages="7" />
         @else
         <div class="empty-state enhanced-empty-state">
             <div class="empty-icon">

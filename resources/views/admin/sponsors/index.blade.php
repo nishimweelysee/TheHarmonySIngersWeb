@@ -37,6 +37,22 @@
             </div>
         </div>
         <div class="header-actions">
+            <div class="export-buttons">
+                <a href="{{ route('admin.sponsors.export.excel', request()->query()) }}" class="btn btn-success enhanced-btn">
+                    <div class="btn-content">
+                        <i class="fas fa-file-excel"></i>
+                        <span>Export Excel</span>
+                    </div>
+                    <div class="btn-glow"></div>
+                </a>
+                <a href="{{ route('admin.sponsors.export.pdf', request()->query()) }}" class="btn btn-danger enhanced-btn">
+                    <div class="btn-content">
+                        <i class="fas fa-file-pdf"></i>
+                        <span>Export PDF</span>
+                    </div>
+                    <div class="btn-glow"></div>
+                </a>
+            </div>
             @permission('create_sponsors')
             <a href="{{ route('admin.sponsors.create') }}" class="btn btn-primary enhanced-btn">
                 <div class="btn-content">
@@ -146,7 +162,7 @@
 
     <div class="card-content">
         @if($sponsors->count() > 0)
-        <div class="table-container enhanced-table">
+        <div class="table-container">
             <table class="data-table enhanced-table">
                 <thead>
                     <tr>

@@ -304,84 +304,102 @@
                         <p class="section-subtitle">Upload audio recordings and sheet music</p>
                     </div>
 
-                    <div class="form-row">
-                        <div class="form-group enhanced-group">
-                            <label for="audio_file" class="form-label enhanced-label">
+                    <!-- Tab Navigation -->
+                    <div class="upload-tabs">
+                        <div class="tab-nav">
+                            <button type="button" class="tab-btn active" onclick="switchTab('audio')" id="audioTab">
                                 <i class="fas fa-music"></i>
-                                Audio File
-                            </label>
-                            <div class="file-upload-group enhanced-file-upload">
-                                <input type="file" id="audio_file" name="audio_file"
-                                    class="file-input enhanced-file-input"
-                                    accept=".mp3,.wav,.ogg,.m4a"
-                                    onchange="previewAudioFile(this)">
-                                <div class="file-upload-placeholder">
-                                    <i class="fas fa-cloud-upload-alt"></i>
-                                    <span>Click to upload audio file</span>
-                                    <small>MP3, WAV, OGG, M4A (max 10MB)</small>
-                                </div>
-                                @if($song->audio_file)
-                                <div class="current-file-info">
-                                    <i class="fas fa-music"></i>
-                                    <span>Current: {{ basename($song->audio_file) }}</span>
-                                    <a href="{{ $song->audio_url }}" target="_blank" class="btn btn-sm btn-outline">
-                                        <i class="fas fa-play"></i> Play
-                                    </a>
-                                </div>
-                                @endif
-                                <div class="file-preview" id="audioPreview" style="display: none;">
-                                    <audio controls class="audio-preview">
-                                        <source src="" type="audio/mpeg">
-                                        Your browser does not support the audio element.
-                                    </audio>
-                                    <button type="button" class="remove-file-btn" onclick="removeAudioFile()">
-                                        <i class="fas fa-times"></i>
-                                    </button>
-                                </div>
-                            </div>
-                            @error('audio_file')
-                            <span class="error-message enhanced-error">{{ $message }}</span>
-                            @enderror
+                                <span>AUDIO FILE</span>
+                            </button>
+                            <button type="button" class="tab-btn" onclick="switchTab('sheet')" id="sheetTab">
+                                <i class="fas fa-file-pdf"></i>
+                                <span>SHEET MUSIC</span>
+                            </button>
                         </div>
 
-                        <div class="form-group enhanced-group">
-                            <label for="sheet_music_file" class="form-label enhanced-label">
-                                <i class="fas fa-file-pdf"></i>
-                                Sheet Music
-                            </label>
-                            <div class="file-upload-group enhanced-file-upload">
-                                <input type="file" id="sheet_music_file" name="sheet_music_file"
-                                    class="file-input enhanced-file-input"
-                                    accept=".pdf,.doc,.docx"
-                                    onchange="previewSheetMusicFile(this)">
-                                <div class="file-upload-placeholder">
-                                    <i class="fas fa-cloud-upload-alt"></i>
-                                    <span>Click to upload sheet music</span>
-                                    <small>PDF, DOC, DOCX (max 20MB)</small>
-                                </div>
-                                @if($song->sheet_music_file)
-                                <div class="current-file-info">
-                                    <i class="fas fa-file-pdf"></i>
-                                    <span>Current: {{ basename($song->sheet_music_file) }}</span>
-                                    <a href="{{ $song->sheet_music_url }}" target="_blank" class="btn btn-sm btn-outline">
-                                        <i class="fas fa-download"></i> Download
-                                    </a>
-                                </div>
-                                @endif
-                                <div class="file-preview" id="sheetMusicPreview" style="display: none;">
-                                    <div class="file-info">
-                                        <i class="fas fa-file-pdf"></i>
-                                        <span class="file-name"></span>
-                                        <span class="file-size"></span>
+                        <!-- Audio File Tab -->
+                        <div class="tab-content active" id="audioTabContent">
+                            <div class="form-group enhanced-group">
+                                <label for="audio_file" class="form-label enhanced-label">
+                                    <i class="fas fa-music"></i>
+                                    Audio File
+                                </label>
+                                <div class="file-upload-group enhanced-file-upload">
+                                    <input type="file" id="audio_file" name="audio_file"
+                                        class="file-input enhanced-file-input"
+                                        accept=".mp3,.wav,.ogg,.m4a"
+                                        onchange="previewAudioFile(this)">
+                                    <div class="file-upload-placeholder">
+                                        <i class="fas fa-cloud-upload-alt"></i>
+                                        <span>Click to upload audio file</span>
+                                        <small>MP3, WAV, OGG, M4A (max 10MB)</small>
                                     </div>
-                                    <button type="button" class="remove-file-btn" onclick="removeSheetMusicFile()">
-                                        <i class="fas fa-times"></i>
-                                    </button>
+                                    @if($song->audio_file)
+                                    <div class="current-file-info">
+                                        <i class="fas fa-music"></i>
+                                        <span>Current: {{ basename($song->audio_file) }}</span>
+                                        <a href="{{ $song->audio_url }}" target="_blank" class="btn btn-sm btn-outline">
+                                            <i class="fas fa-play"></i> Play
+                                        </a>
+                                    </div>
+                                    @endif
+                                    <div class="file-preview" id="audioPreview" style="display: none;">
+                                        <audio controls class="audio-preview">
+                                            <source src="" type="audio/mpeg">
+                                            Your browser does not support the audio element.
+                                        </audio>
+                                        <button type="button" class="remove-file-btn" onclick="removeAudioFile()">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
                                 </div>
+                                @error('audio_file')
+                                <span class="error-message enhanced-error">{{ $message }}</span>
+                                @enderror
                             </div>
-                            @error('sheet_music_file')
-                            <span class="error-message enhanced-error">{{ $message }}</span>
-                            @enderror
+                        </div>
+
+                        <!-- Sheet Music Tab -->
+                        <div class="tab-content" id="sheetTabContent">
+                            <div class="form-group enhanced-group">
+                                <label for="sheet_music_file" class="form-label enhanced-label">
+                                    <i class="fas fa-file-pdf"></i>
+                                    Sheet Music
+                                </label>
+                                <div class="file-upload-group enhanced-file-upload">
+                                    <input type="file" id="sheet_music_file" name="sheet_music_file"
+                                        class="file-input enhanced-file-input"
+                                        accept=".pdf,.doc,.docx"
+                                        onchange="previewSheetMusicFile(this)">
+                                    <div class="file-upload-placeholder">
+                                        <i class="fas fa-cloud-upload-alt"></i>
+                                        <span>Click to upload sheet music</span>
+                                        <small>PDF, DOC, DOCX (max 20MB)</small>
+                                    </div>
+                                    @if($song->sheet_music_file)
+                                    <div class="current-file-info">
+                                        <i class="fas fa-file-pdf"></i>
+                                        <span>Current: {{ basename($song->sheet_music_file) }}</span>
+                                        <a href="{{ $song->sheet_music_url }}" target="_blank" class="btn btn-sm btn-outline">
+                                            <i class="fas fa-download"></i> Download
+                                        </a>
+                                    </div>
+                                    @endif
+                                    <div class="file-preview" id="sheetMusicPreview" style="display: none;">
+                                        <div class="file-info">
+                                            <i class="fas fa-file-pdf"></i>
+                                            <span class="file-name"></span>
+                                            <span class="file-size"></span>
+                                        </div>
+                                        <button type="button" class="remove-file-btn" onclick="removeSheetMusicFile()">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                @error('sheet_music_file')
+                                <span class="error-message enhanced-error">{{ $message }}</span>
+                                @enderror
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -396,49 +414,69 @@
                         <p class="section-subtitle">Optional information and notes</p>
                     </div>
 
-                    <div class="form-group enhanced-group full-width">
-                        <label for="lyrics" class="form-label enhanced-label">
-                            <i class="fas fa-align-left"></i>
-                            Lyrics
-                        </label>
-                        <textarea id="lyrics" name="lyrics"
-                            class="form-textarea enhanced-textarea"
-                            rows="6"
-                            placeholder="Enter the song lyrics here...">{{ old('lyrics', $song->lyrics) }}</textarea>
-                        <div class="textarea-glow"></div>
-                        @error('lyrics')
-                        <span class="error-message enhanced-error">{{ $message }}</span>
-                        @enderror
-                    </div>
+                    <!-- Tab Navigation -->
+                    <div class="details-tabs">
+                        <div class="tab-nav">
+                            <button type="button" class="tab-btn active" onclick="switchDetailsTab('lyrics')" id="lyricsTab">
+                                <i class="fas fa-align-left"></i>
+                                <span>LYRICS</span>
+                            </button>
+                            <button type="button" class="tab-btn" onclick="switchDetailsTab('description')" id="descriptionTab">
+                                <i class="fas fa-info-circle"></i>
+                                <span>DESCRIPTION</span>
+                            </button>
+                        </div>
 
-                    <div class="form-group enhanced-group full-width">
-                        <label for="description" class="form-label enhanced-label">
-                            <i class="fas fa-align-left"></i>
-                            Description
-                        </label>
-                        <textarea id="description" name="description"
-                            class="form-textarea enhanced-textarea"
-                            rows="4"
-                            placeholder="Enter song description or notes...">{{ old('description', $song->description) }}</textarea>
-                        <div class="textarea-glow"></div>
-                        @error('description')
-                        <span class="error-message enhanced-error">{{ $message }}</span>
-                        @enderror
-                    </div>
+                        <!-- Lyrics Tab -->
+                        <div class="tab-content active" id="lyricsTabContent">
+                            <div class="form-group enhanced-group full-width">
+                                <label for="lyrics" class="form-label enhanced-label">
+                                    <i class="fas fa-align-left"></i>
+                                    Lyrics
+                                </label>
+                                <textarea id="lyrics" name="lyrics"
+                                    class="form-textarea enhanced-textarea wysiwyg-editor"
+                                    rows="6"
+                                    placeholder="Enter the song lyrics here...">{{ old('lyrics', $song->lyrics) }}</textarea>
+                                <div class="textarea-glow"></div>
+                                @error('lyrics')
+                                <span class="error-message enhanced-error">{{ $message }}</span>
+                                @enderror
+                            </div>
+                        </div>
 
-                    <div class="form-group enhanced-group full-width">
-                        <label for="notes" class="form-label enhanced-label">
-                            <i class="fas fa-sticky-note"></i>
-                            Performance Notes
-                        </label>
-                        <textarea id="notes" name="notes"
-                            class="form-textarea enhanced-textarea"
-                            rows="3"
-                            placeholder="Enter performance notes, special instructions, or rehearsal tips...">{{ old('notes', $song->notes) }}</textarea>
-                        <div class="textarea-glow"></div>
-                        @error('notes')
-                        <span class="error-message enhanced-error">{{ $message }}</span>
-                        @enderror
+                        <!-- Description Tab -->
+                        <div class="tab-content" id="descriptionTabContent">
+                            <div class="form-group enhanced-group full-width">
+                                <label for="description" class="form-label enhanced-label">
+                                    <i class="fas fa-align-left"></i>
+                                    Description
+                                </label>
+                                <textarea id="description" name="description"
+                                    class="form-textarea enhanced-textarea"
+                                    rows="4"
+                                    placeholder="Enter song description or notes...">{{ old('description', $song->description) }}</textarea>
+                                <div class="textarea-glow"></div>
+                                @error('description')
+                                <span class="error-message enhanced-error">{{ $message }}</span>
+                                @enderror
+                            </div>
+
+                            <div class="form-group enhanced-group full-width">
+                                <label for="notes" class="form-label enhanced-label">
+                                    <i class="fas fa-sticky-note"></i>
+                                    Performance Notes
+                                </label>
+                                <textarea id="notes" name="notes"
+                                    class="form-textarea enhanced-textarea"
+                                    rows="3"
+                                    placeholder="Enter performance notes, special instructions, or rehearsal tips...">{{ old('notes', $song->notes) }}</textarea>
+                                <div class="textarea-glow"></div>
+                                @error('notes')
+                                <span class="error-message enhanced-error">{{ $message }}</span>
+                                @enderror
+                            </div>
+                        </div>
                     </div>
 
                     <div class="form-row">
@@ -515,6 +553,44 @@
 
 @push('scripts')
 <script>
+    // Tab switching for file uploads
+    function switchTab(tabName) {
+        // Hide all tab contents
+        document.querySelectorAll('.upload-tabs .tab-content').forEach(content => {
+            content.classList.remove('active');
+        });
+
+        // Remove active class from all tab buttons
+        document.querySelectorAll('.upload-tabs .tab-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+
+        // Show selected tab content
+        document.getElementById(tabName + 'TabContent').classList.add('active');
+
+        // Add active class to selected tab button
+        document.getElementById(tabName + 'Tab').classList.add('active');
+    }
+
+    // Tab switching for details
+    function switchDetailsTab(tabName) {
+        // Hide all tab contents
+        document.querySelectorAll('.details-tabs .tab-content').forEach(content => {
+            content.classList.remove('active');
+        });
+
+        // Remove active class from all tab buttons
+        document.querySelectorAll('.details-tabs .tab-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+
+        // Show selected tab content
+        document.getElementById(tabName + 'TabContent').classList.add('active');
+
+        // Add active class to selected tab button
+        document.getElementById(tabName + 'Tab').classList.add('active');
+    }
+
     function previewAudioFile(input) {
         const file = input.files[0];
         const preview = document.getElementById('audioPreview');
@@ -571,5 +647,60 @@
         const i = Math.floor(Math.log(bytes) / Math.log(k));
         return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
     }
+
+    // Initialize TinyMCE WYSIWYG Editor
+    document.addEventListener('DOMContentLoaded', function() {
+        if (typeof tinymce !== 'undefined') {
+            tinymce.init({
+                selector: '.wysiwyg-editor',
+                height: 350,
+                menubar: false,
+                plugins: [
+                    'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
+                    'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
+                    'insertdatetime', 'media', 'table', 'help', 'wordcount', 'emoticons',
+                    'textcolor', 'colorpicker', 'textpattern', 'nonbreaking', 'pagebreak',
+                    'directionality', 'template', 'paste', 'autosave'
+                ],
+                toolbar: 'undo redo | blocks fontsize | ' +
+                    'bold italic underline strikethrough | forecolor backcolor | ' +
+                    'alignleft aligncenter alignright alignjustify | ' +
+                    'bullist numlist outdent indent | ' +
+                    'link image media table | ' +
+                    'emoticons charmap | ' +
+                    'removeformat | fullscreen preview code | help',
+                fontsize_formats: '8pt 10pt 12pt 14pt 16pt 18pt 20pt 24pt 28pt 32pt 36pt 48pt',
+                content_style: 'body { font-family: -apple-system, BlinkMacSystemFont, San Francisco, Segoe UI, Roboto, Helvetica Neue, sans-serif; font-size: 14px; line-height: 1.6; }',
+                paste_data_images: false,
+                paste_as_text: false,
+                paste_auto_cleanup_on_paste: true,
+                paste_remove_styles_if_webkit: false,
+                paste_merge_formats: true,
+                setup: function(editor) {
+                    editor.on('change', function() {
+                        editor.save();
+                    });
+
+                    // Add custom button for song structure
+                    editor.ui.registry.addButton('songstructure', {
+                        text: 'Song Structure',
+                        tooltip: 'Insert song structure template',
+                        onAction: function() {
+                            editor.insertContent('<p><strong>Verse 1:</strong><br><br><strong>Chorus:</strong><br><br><strong>Verse 2:</strong><br><br><strong>Chorus:</strong><br><br><strong>Bridge:</strong><br><br><strong>Chorus:</strong></p>');
+                        }
+                    });
+                },
+                init_instance_callback: function(editor) {
+                    // Auto-save functionality
+                    editor.on('keyup', function() {
+                        clearTimeout(window.tinymceAutoSave);
+                        window.tinymceAutoSave = setTimeout(function() {
+                            editor.save();
+                        }, 2000);
+                    });
+                }
+            });
+        }
+    });
 </script>
 @endpush

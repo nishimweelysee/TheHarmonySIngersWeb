@@ -13,6 +13,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->web(append: [
             \App\Http\Middleware\HandleLargeUploads::class,
+            \App\Http\Middleware\AuditMiddleware::class,
         ]);
 
         // Register custom authorization middlewares

@@ -376,7 +376,7 @@
                             Lyrics
                         </label>
                         <textarea id="lyrics" name="lyrics"
-                            class="form-textarea enhanced-textarea"
+                            class="form-textarea enhanced-textarea wysiwyg-editor"
                             rows="6"
                             placeholder="Enter the song lyrics here...">{{ old('lyrics') }}</textarea>
                         <div class="textarea-glow"></div>
@@ -538,5 +538,60 @@
         const i = Math.floor(Math.log(bytes) / Math.log(k));
         return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
     }
+
+    // Initialize TinyMCE WYSIWYG Editor
+    document.addEventListener('DOMContentLoaded', function() {
+        if (typeof tinymce !== 'undefined') {
+            tinymce.init({
+                selector: '.wysiwyg-editor',
+                height: 350,
+                menubar: false,
+                plugins: [
+                    'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
+                    'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
+                    'insertdatetime', 'media', 'table', 'help', 'wordcount', 'emoticons',
+                    'textcolor', 'colorpicker', 'textpattern', 'nonbreaking', 'pagebreak',
+                    'directionality', 'template', 'paste', 'autosave'
+                ],
+                toolbar: 'undo redo | blocks fontsize | ' +
+                    'bold italic underline strikethrough | forecolor backcolor | ' +
+                    'alignleft aligncenter alignright alignjustify | ' +
+                    'bullist numlist outdent indent | ' +
+                    'link image media table | ' +
+                    'emoticons charmap | ' +
+                    'removeformat | fullscreen preview code | help',
+                fontsize_formats: '8pt 10pt 12pt 14pt 16pt 18pt 20pt 24pt 28pt 32pt 36pt 48pt',
+                content_style: 'body { font-family: -apple-system, BlinkMacSystemFont, San Francisco, Segoe UI, Roboto, Helvetica Neue, sans-serif; font-size: 14px; line-height: 1.6; }',
+                paste_data_images: false,
+                paste_as_text: false,
+                paste_auto_cleanup_on_paste: true,
+                paste_remove_styles_if_webkit: false,
+                paste_merge_formats: true,
+                setup: function(editor) {
+                    editor.on('change', function() {
+                        editor.save();
+                    });
+
+                    // Add custom button for song structure
+                    editor.ui.registry.addButton('songstructure', {
+                        text: 'Song Structure',
+                        tooltip: 'Insert song structure template',
+                        onAction: function() {
+                            editor.insertContent('<p><strong>Verse 1:</strong><br><br><strong>Chorus:</strong><br><br><strong>Verse 2:</strong><br><br><strong>Chorus:</strong><br><br><strong>Bridge:</strong><br><br><strong>Chorus:</strong></p>');
+                        }
+                    });
+                },
+                init_instance_callback: function(editor) {
+                    // Auto-save functionality
+                    editor.on('keyup', function() {
+                        clearTimeout(window.tinymceAutoSave);
+                        window.tinymceAutoSave = setTimeout(function() {
+                            editor.save();
+                        }, 2000);
+                    });
+                }
+            });
+        }
+    });
 </script>
 @endpush

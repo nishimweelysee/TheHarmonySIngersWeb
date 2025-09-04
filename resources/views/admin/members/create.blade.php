@@ -70,7 +70,8 @@
     </div>
 
     <div class="card-content">
-        <form method="POST" action="{{ route('admin.members.store') }}" class="member-form enhanced-form" enctype="multipart/form-data">
+        <form method="POST" action="{{ route('admin.members.store') }}" class="member-form enhanced-form"
+            enctype="multipart/form-data">
             @csrf
 
             <div class="form-grid enhanced-form-grid">
@@ -90,10 +91,8 @@
                                 <i class="fas fa-user"></i>
                                 First Name *
                             </label>
-                            <input type="text" id="first_name" name="first_name"
-                                class="form-input enhanced-input"
-                                value="{{ old('first_name') }}"
-                                placeholder="Enter first name" required>
+                            <input type="text" id="first_name" name="first_name" class="form-input enhanced-input"
+                                value="{{ old('first_name') }}" placeholder="Enter first name" required>
                             <div class="input-glow"></div>
                             @error('first_name')
                             <span class="error-message enhanced-error">{{ $message }}</span>
@@ -105,10 +104,8 @@
                                 <i class="fas fa-user"></i>
                                 Last Name *
                             </label>
-                            <input type="text" id="last_name" name="last_name"
-                                class="form-input enhanced-input"
-                                value="{{ old('last_name') }}"
-                                placeholder="Enter last name" required>
+                            <input type="text" id="last_name" name="last_name" class="form-input enhanced-input"
+                                value="{{ old('last_name') }}" placeholder="Enter last name" required>
                             <div class="input-glow"></div>
                             @error('last_name')
                             <span class="error-message enhanced-error">{{ $message }}</span>
@@ -122,10 +119,8 @@
                                 <i class="fas fa-envelope"></i>
                                 Email Address *
                             </label>
-                            <input type="email" id="email" name="email"
-                                class="form-input enhanced-input"
-                                value="{{ old('email') }}"
-                                placeholder="Enter email address" required>
+                            <input type="email" id="email" name="email" class="form-input enhanced-input"
+                                value="{{ old('email') }}" placeholder="Enter email address" required>
                             <div class="input-glow"></div>
                             @error('email')
                             <span class="error-message enhanced-error">{{ $message }}</span>
@@ -137,10 +132,8 @@
                                 <i class="fas fa-phone"></i>
                                 Phone Number
                             </label>
-                            <input type="tel" id="phone" name="phone"
-                                class="form-input enhanced-input"
-                                value="{{ old('phone') }}"
-                                placeholder="Enter phone number">
+                            <input type="tel" id="phone" name="phone" class="form-input enhanced-input"
+                                value="{{ old('phone') }}" placeholder="Enter phone number">
                             <div class="input-glow"></div>
                             @error('phone')
                             <span class="error-message enhanced-error">{{ $message }}</span>
@@ -154,8 +147,7 @@
                                 <i class="fas fa-birthday-cake"></i>
                                 Date of Birth
                             </label>
-                            <input type="date" id="date_of_birth" name="date_of_birth"
-                                class="form-input enhanced-input"
+                            <input type="date" id="date_of_birth" name="date_of_birth" class="form-input enhanced-input"
                                 value="{{ old('date_of_birth') }}">
                             <div class="input-glow"></div>
                             @error('date_of_birth')
@@ -170,8 +162,7 @@
                             </label>
                             <div class="file-upload-container enhanced-upload">
                                 <input type="file" id="profile_photo" name="profile_photo"
-                                    class="file-input enhanced-file-input"
-                                    accept="image/*">
+                                    class="file-input enhanced-file-input" accept="image/*">
                                 <div class="upload-placeholder">
                                     <i class="fas fa-cloud-upload-alt"></i>
                                     <span>Choose a photo or drag here</span>
@@ -195,9 +186,7 @@
                             <i class="fas fa-map-marker-alt"></i>
                             Address
                         </label>
-                        <textarea id="address" name="address"
-                            class="form-textarea enhanced-textarea"
-                            rows="3"
+                        <textarea id="address" name="address" class="form-textarea enhanced-textarea" rows="3"
                             placeholder="Enter full address">{{ old('address') }}</textarea>
                         <div class="textarea-glow"></div>
                         @error('address')
@@ -225,7 +214,8 @@
                             <select id="type" name="type" class="form-select enhanced-select" required>
                                 <option value="">Select Member Type</option>
                                 <option value="singer" {{ old('type') == 'singer' ? 'selected' : '' }}>Singer</option>
-                                <option value="general" {{ old('type') == 'general' ? 'selected' : '' }}>General Member</option>
+                                <option value="general" {{ old('type') == 'general' ? 'selected' : '' }}>General Member
+                                </option>
                             </select>
                             <div class="select-glow"></div>
                             @error('type')
@@ -240,9 +230,11 @@
                             </label>
                             <select id="voice_part" name="voice_part" class="form-select enhanced-select">
                                 <option value="">Select Voice Part</option>
-                                <option value="soprano" {{ old('voice_part') == 'soprano' ? 'selected' : '' }}>Soprano</option>
+                                <option value="soprano" {{ old('voice_part') == 'soprano' ? 'selected' : '' }}>Soprano
+                                </option>
                                 <option value="alto" {{ old('voice_part') == 'alto' ? 'selected' : '' }}>Alto</option>
-                                <option value="tenor" {{ old('voice_part') == 'tenor' ? 'selected' : '' }}>Tenor</option>
+                                <option value="tenor" {{ old('voice_part') == 'tenor' ? 'selected' : '' }}>Tenor
+                                </option>
                                 <option value="bass" {{ old('voice_part') == 'bass' ? 'selected' : '' }}>Bass</option>
                             </select>
                             <div class="select-glow"></div>
@@ -258,8 +250,7 @@
                                 <i class="fas fa-calendar-plus"></i>
                                 Join Date *
                             </label>
-                            <input type="date" id="join_date" name="join_date"
-                                class="form-input enhanced-input"
+                            <input type="date" id="join_date" name="join_date" class="form-input enhanced-input"
                                 value="{{ old('join_date', date('Y-m-d')) }}" required>
                             <div class="input-glow"></div>
                             @error('join_date')
@@ -269,15 +260,15 @@
 
                         <div class="form-group enhanced-group">
                             <label class="form-label enhanced-label">
-                                <i class="fas fa-circle"></i>
+                                <i class="fas fa-toggle-on"></i>
                                 Member Status
                             </label>
                             <div class="checkbox-group enhanced-checkbox">
+                                <input type="hidden" name="is_active" value="0">
                                 <input type="checkbox" id="is_active" name="is_active" value="1"
-                                    {{ old('is_active', '1') ? 'checked' : '' }}
-                                    class="enhanced-checkbox-input">
+                                    {{ old('is_active', '1') ? 'checked' : '' }} class="enhanced-checkbox-input">
                                 <label for="is_active" class="checkbox-label enhanced-label">
-                                    <span class="checkbox-custom"></span>
+                                    <div class="checkbox-custom"></div>
                                     Active Member
                                 </label>
                             </div>
@@ -308,53 +299,54 @@
 </div>
 
 <script>
-    // File upload preview functionality
-    document.getElementById('profile_photo').addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                document.getElementById('previewImage').src = e.target.result;
-                document.getElementById('uploadPreview').style.display = 'block';
-                document.querySelector('.upload-placeholder').style.display = 'none';
-            };
-            reader.readAsDataURL(file);
-        }
-    });
-
-    function removeFile() {
-        document.getElementById('profile_photo').value = '';
-        document.getElementById('uploadPreview').style.display = 'none';
-        document.querySelector('.upload-placeholder').style.display = 'flex';
+// File upload preview functionality
+document.getElementById('profile_photo').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('previewImage').src = e.target.result;
+            document.getElementById('uploadPreview').style.display = 'block';
+            document.querySelector('.upload-placeholder').style.display = 'none';
+        };
+        reader.readAsDataURL(file);
     }
+});
 
-    // Enhanced form validation
-    document.querySelector('.enhanced-form').addEventListener('submit', function(e) {
-        const requiredFields = document.querySelectorAll('[required]');
-        let isValid = true;
+function removeFile() {
+    document.getElementById('profile_photo').value = '';
+    document.getElementById('uploadPreview').style.display = 'none';
+    document.querySelector('.upload-placeholder').style.display = 'flex';
+}
 
-        requiredFields.forEach(field => {
-            if (!field.value.trim()) {
-                field.classList.add('error');
-                isValid = false;
-            } else {
-                field.classList.remove('error');
-            }
-        });
+// Enhanced form validation
+document.querySelector('.enhanced-form').addEventListener('submit', function(e) {
+    const requiredFields = document.querySelectorAll('[required]');
+    let isValid = true;
 
-        if (!isValid) {
-            e.preventDefault();
-            // Show error message
-            const errorDiv = document.createElement('div');
-            errorDiv.className = 'form-error enhanced-error';
-            errorDiv.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Please fill in all required fields.';
-            document.querySelector('.enhanced-form').insertBefore(errorDiv, document.querySelector('.form-actions'));
-
-            setTimeout(() => {
-                errorDiv.remove();
-            }, 5000);
+    requiredFields.forEach(field => {
+        if (!field.value.trim()) {
+            field.classList.add('error');
+            isValid = false;
+        } else {
+            field.classList.remove('error');
         }
     });
+
+    if (!isValid) {
+        e.preventDefault();
+        // Show error message
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'form-error enhanced-error';
+        errorDiv.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Please fill in all required fields.';
+        document.querySelector('.enhanced-form').insertBefore(errorDiv, document.querySelector(
+            '.form-actions'));
+
+        setTimeout(() => {
+            errorDiv.remove();
+        }, 5000);
+    }
+});
 </script>
 
 @endsection

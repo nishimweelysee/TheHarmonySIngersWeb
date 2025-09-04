@@ -24,10 +24,10 @@ class DatabaseSeeder extends Seeder
         $adminRole = Role::where('name', 'admin')->first();
 
         User::updateOrCreate(
-            ['email' => 'admin@harmonysingers.com'],
+            ['email' => 'theharmonysingerschoir@gmail.com'],
             [
                 'name' => 'Admin User',
-                'email' => 'admin@harmonysingers.com',
+                'email' => 'theharmonysingerschoir@gmail.com',
                 'password' => Hash::make('password'),
                 'role_id' => $adminRole->id,
             ]

@@ -270,18 +270,29 @@
         @if($song->lyrics)
         <div class="detail-card enhanced-card full-width">
             <div class="card-header enhanced-header">
-                <h3 class="card-title">
-                    <i class="fas fa-align-left"></i>
-                    Lyrics
-                </h3>
-                <div class="header-badge">
-                    <span class="badge-dot"></span>
-                    Song Text
+                <div class="header-content">
+                    <h3 class="card-title">
+                        <i class="fas fa-align-left"></i>
+                        Lyrics
+                    </h3>
+                    <div class="header-badge">
+                        <span class="badge-dot"></span>
+                        Song Text
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <button onclick="printLyrics()" class="btn btn-outline enhanced-btn">
+                        <div class="btn-content">
+                            <i class="fas fa-print"></i>
+                            <span>Print Lyrics</span>
+                        </div>
+                        <div class="btn-glow"></div>
+                    </button>
                 </div>
             </div>
             <div class="card-content">
-                <div class="lyrics-content enhanced-content">
-                    {!! nl2br(e($song->lyrics)) !!}
+                <div class="lyrics-content enhanced-content" id="lyricsContent">
+                    {!! $song->lyrics !!}
                 </div>
             </div>
         </div>
@@ -374,3 +385,129 @@
 </div>
 
 @endsection
+
+@push('scripts')
+<script>
+    function printLyrics() {
+        const lyricsContent = document.getElementById('lyricsContent');
+        const songTitle = '{{ $song->title }}';
+        const composer = '{{ $song->composer ?? "Unknown" }}';
+
+        // Create a new window for printing
+        const printWindow = window.open('', '_blank');
+
+        printWindow.document.write(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>${songTitle} - Lyrics</title>
+                <style>
+                    body {
+                        font-family: -apple-system, BlinkMacSystemFont, San Francisco, Segoe UI, Roboto, Helvetica Neue, sans-serif;
+                        font-size: 14px;
+                        line-height: 1.6;
+                        color: #000;
+                        max-width: 800px;
+                        margin: 0 auto;
+                        padding: 2rem;
+                    }
+                    .print-header {
+                        text-align: center;
+                        margin-bottom: 2rem;
+                        border-bottom: 2px solid #000;
+                        padding-bottom: 1rem;
+                    }
+                    .print-title {
+                        font-size: 24px;
+                        font-weight: bold;
+                        margin-bottom: 0.5rem;
+                    }
+                    .print-composer {
+                        font-size: 16px;
+                        color: #666;
+                        font-style: italic;
+                    }
+                    .print-content {
+                        margin-top: 2rem;
+                    }
+                    .print-content h1,
+                    .print-content h2,
+                    .print-content h3,
+                    .print-content h4,
+                    .print-content h5,
+                    .print-content h6 {
+                        color: #000;
+                        margin: 1.5rem 0 1rem 0;
+                        font-weight: 600;
+                    }
+                    .print-content p {
+                        margin: 1rem 0;
+                        line-height: 1.8;
+                    }
+                    .print-content strong {
+                        color: #000;
+                        font-weight: 600;
+                    }
+                    .print-content em {
+                        font-style: italic;
+                    }
+                    .print-content ul,
+                    .print-content ol {
+                        margin: 1rem 0;
+                        padding-left: 2rem;
+                    }
+                    .print-content li {
+                        margin: 0.5rem 0;
+                        line-height: 1.6;
+                    }
+                    .print-content blockquote {
+                        border-left: 4px solid #000;
+                        padding-left: 1rem;
+                        margin: 1.5rem 0;
+                        font-style: italic;
+                        background: #f5f5f5;
+                        padding: 1rem;
+                    }
+                    .print-content table {
+                        width: 100%;
+                        border-collapse: collapse;
+                        margin: 1rem 0;
+                    }
+                    .print-content th,
+                    .print-content td {
+                        border: 1px solid #000;
+                        padding: 0.75rem;
+                        text-align: left;
+                    }
+                    .print-content th {
+                        background: #f0f0f0;
+                        font-weight: 600;
+                    }
+                    @media print {
+                        body { margin: 0; padding: 1rem; }
+                        .print-header { page-break-after: avoid; }
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="print-header">
+                    <div class="print-title">${songTitle}</div>
+                    <div class="print-composer">by ${composer}</div>
+                </div>
+                <div class="print-content">
+                    ${lyricsContent.innerHTML}
+                </div>
+            </body>
+            </html>
+        `);
+
+        printWindow.document.close();
+
+        // Wait for content to load, then print
+        setTimeout(() => {
+            printWindow.print();
+            printWindow.close();
+        }, 500);
+    }
+</script>
+@endpush

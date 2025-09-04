@@ -174,115 +174,194 @@
         @if($media->count() > 0)
         <div class="media-grid enhanced-media-grid">
             @foreach($media as $item)
-            <div class="media-card enhanced-media-card" data-type="{{ $item->type }}" data-media-id="{{ $item->id }}">
-                <div class="media-preview">
-                    @if($item->type === 'photo' && $item->file_path)
-                    <img src="{{ asset('storage/' . $item->file_path) }}" alt="{{ $item->title }}" class="media-image"
-                        onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                    <div class="media-preview-fallback" style="display: none;">
-                        <i class="fas fa-image fa-2x"></i>
-                        <span class="media-type-label">Photo</span>
+            <div class="media-card enhanced-media-card modern-card" data-type="{{ $item->type }}" data-media-id="{{ $item->id }}">
+                <!-- Enhanced Media Preview with Overlay -->
+                <div class="media-preview enhanced-preview">
+                    <div class="preview-container">
+                        @if($item->type === 'photo' && $item->file_path)
+                        <img src="{{ asset('storage/' . $item->file_path) }}" alt="{{ $item->title }}" class="media-image enhanced-image"
+                            onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <div class="media-preview-fallback enhanced-fallback" style="display: none;">
+                            <div class="fallback-icon">
+                                <i class="fas fa-image"></i>
+                            </div>
+                            <span class="media-type-label">Photo</span>
+                        </div>
+                        @elseif($item->type === 'photo')
+                        <div class="media-preview-fallback enhanced-fallback">
+                            <div class="fallback-icon">
+                                <i class="fas fa-image"></i>
+                            </div>
+                            <span class="media-type-label">Photo</span>
+                        </div>
+                        @elseif($item->type === 'video' && $item->file_path)
+                        <video class="media-video enhanced-video" controls preload="metadata" poster="">
+                            <source src="{{ asset('storage/' . $item->file_path) }}" type="video/mp4">
+                            <source src="{{ asset('storage/' . $item->file_path) }}" type="video/webm">
+                            <source src="{{ asset('storage/' . $item->file_path) }}" type="video/ogg">
+                            Your browser does not support video playback.
+                        </video>
+                        <div class="video-overlay">
+                            <div class="play-button">
+                                <i class="fas fa-play"></i>
+                            </div>
+                        </div>
+                        @elseif($item->type === 'video')
+                        <div class="media-preview-fallback enhanced-fallback">
+                            <div class="fallback-icon">
+                                <i class="fas fa-video"></i>
+                            </div>
+                            <span class="media-type-label">Video</span>
+                        </div>
+                        @elseif($item->type === 'audio' && $item->file_path)
+                        <div class="audio-container">
+                            <div class="audio-visualizer">
+                                <div class="visualizer-bar"></div>
+                                <div class="visualizer-bar"></div>
+                                <div class="visualizer-bar"></div>
+                                <div class="visualizer-bar"></div>
+                                <div class="visualizer-bar"></div>
+                            </div>
+                            <audio class="media-audio enhanced-audio" controls preload="metadata">
+                                <source src="{{ asset('storage/' . $item->file_path) }}" type="audio/mpeg">
+                                <source src="{{ asset('storage/' . $item->file_path) }}" type="audio/ogg">
+                                <source src="{{ asset('storage/' . $item->file_path) }}" type="audio/wav">
+                                Your browser does not support audio playback.
+                            </audio>
+                        </div>
+                        @elseif($item->type === 'audio')
+                        <div class="media-preview-fallback enhanced-fallback">
+                            <div class="fallback-icon">
+                                <i class="fas fa-music"></i>
+                            </div>
+                            <span class="media-type-label">Audio</span>
+                        </div>
+                        @else
+                        <div class="media-preview-fallback enhanced-fallback">
+                            <div class="fallback-icon">
+                                <i class="fas fa-file"></i>
+                            </div>
+                            <span class="media-type-label">File</span>
+                        </div>
+                        @endif
                     </div>
-                    @elseif($item->type === 'photo')
-                    <div class="media-preview-fallback">
-                        <i class="fas fa-image fa-2x"></i>
-                        <span class="media-type-label">Photo</span>
+
+                    <!-- Enhanced Overlay with Actions -->
+                    <div class="media-overlay enhanced-overlay">
+                        <div class="overlay-content">
+                            <div class="quick-actions">
+                                <button class="quick-action-btn view-btn" onclick="openMediaView('{{ $item->id }}')" title="Quick View">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="quick-action-btn fullscreen-btn" data-media-id="{{ $item->id }}"
+                                    data-media-type="{{ $item->type }}" data-file-path="{{ asset('storage/' . $item->file_path) }}"
+                                    data-title="{{ $item->title }}" data-description="{{ $item->description }}"
+                                    title="Fullscreen">
+                                    <i class="fas fa-expand"></i>
+                                </button>
+                                <button class="quick-action-btn download-btn" onclick="downloadMedia('{{ asset('storage/' . $item->file_path) }}')" title="Download">
+                                    <i class="fas fa-download"></i>
+                                </button>
+                            </div>
+                        </div>
                     </div>
-                    @elseif($item->type === 'video' && $item->file_path)
-                    <video class="media-video" controls preload="metadata">
-                        <source src="{{ asset('storage/' . $item->file_path) }}" type="video/mp4">
-                        <source src="{{ asset('storage/' . $item->file_path) }}" type="video/webm">
-                        <source src="{{ asset('storage/' . $item->file_path) }}" type="video/ogg">
-                        Your browser does not support video playback.
-                    </video>
-                    @elseif($item->type === 'video')
-                    <div class="media-preview-fallback">
-                        <i class="fas fa-video fa-2x"></i>
-                        <span class="media-type-label">Video</span>
+
+                    <!-- Media Type Badge -->
+                    <div class="media-type-badge type-{{ $item->type }}">
+                        <i class="fas fa-{{ $item->type === 'photo' ? 'image' : ($item->type === 'video' ? 'video' : ($item->type === 'audio' ? 'music' : 'file')) }}"></i>
+                        <span>{{ ucfirst($item->type) }}</span>
                     </div>
-                    @elseif($item->type === 'audio' && $item->file_path)
-                    <audio class="media-audio" controls preload="metadata">
-                        <source src="{{ asset('storage/' . $item->file_path) }}" type="audio/mpeg">
-                        <source src="{{ asset('storage/' . $item->file_path) }}" type="audio/ogg">
-                        <source src="{{ asset('storage/' . $item->file_path) }}" type="audio/wav">
-                        Your browser does not support audio playback.
-                    </audio>
-                    @elseif($item->type === 'audio')
-                    <div class="media-preview-fallback">
-                        <i class="fas fa-music fa-2x"></i>
-                        <span class="media-type-label">Audio</span>
-                    </div>
-                    @else
-                    <div class="media-preview-fallback">
-                        <i class="fas fa-file fa-2x"></i>
-                        <span class="media-type-label">File</span>
+
+                    <!-- Featured Badge -->
+                    @if($item->featured)
+                    <div class="featured-badge">
+                        <i class="fas fa-star"></i>
+                        <span>Featured</span>
                     </div>
                     @endif
-                    <div class="media-overlay"></div>
                 </div>
 
-                <div class="media-info">
-                    <h4 class="media-title">{{ $item->title ?: 'Untitled' }}</h4>
+                <!-- Enhanced Media Info -->
+                <div class="media-info enhanced-info">
+                    <div class="info-header">
+                        <h4 class="media-title enhanced-title">{{ $item->title ?: 'Untitled' }}</h4>
+                        <div class="media-meta">
+                            <span class="file-size">{{ $item->file_size ? \App\Helpers\FileHelper::formatBytes($item->file_size) : 'Unknown size' }}</span>
+                        </div>
+                    </div>
+
                     @if($item->description)
-                    <p class="media-description">{{ Str::limit($item->description, 80) }}</p>
+                    <p class="media-description enhanced-description">{{ Str::limit($item->description, 100) }}</p>
                     @endif
-                    @if($item->concert)
-                    <div class="media-concert">
-                        <i class="fas fa-calendar"></i>
-                        {{ $item->concert->title }}
-                    </div>
-                    @endif
-                    <div class="media-date">
-                        <i class="fas fa-clock"></i>
-                        {{ $item->created_at->format('M j, Y') }}
+
+                    <div class="media-details">
+                        @if($item->concert)
+                        <div class="media-concert enhanced-concert">
+                            <i class="fas fa-calendar-alt"></i>
+                            <span>{{ $item->concert->title }}</span>
+                        </div>
+                        @endif
+
+                        <div class="media-date enhanced-date">
+                            <i class="fas fa-clock"></i>
+                            <span>{{ $item->created_at->format('M j, Y') }}</span>
+                        </div>
                     </div>
                 </div>
 
-                <div class="media-actions">
-                    @permission('view_media')
-                    <a href="{{ route('admin.media.show', $item) }}" class="btn btn-sm btn-secondary action-btn"
-                        title="View Media">
-                        <i class="fas fa-eye"></i>
-                        <span class="btn-tooltip">View</span>
-                    </a>
-                    @endpermission
+                <!-- Enhanced Media Actions -->
+                <div class="media-actions enhanced-actions">
+                    <div class="action-group primary-actions">
+                        @permission('view_media')
+                        <a href="{{ route('admin.media.show', $item) }}" class="btn btn-sm btn-secondary action-btn enhanced-action"
+                            title="View Details">
+                            <i class="fas fa-eye"></i>
+                            <span class="btn-tooltip">View</span>
+                        </a>
+                        @endpermission
 
-                    <!-- Fullscreen Button for Media -->
-                    <button class="btn btn-sm btn-outline action-btn fullscreen-btn" data-media-id="{{ $item->id }}"
-                        data-media-type="{{ $item->type }}" data-file-path="{{ asset('storage/' . $item->file_path) }}"
-                        data-title="{{ $item->title }}" data-description="{{ $item->description }}"
-                        title="Fullscreen View">
-                        <i class="fas fa-expand"></i>
-                        <span class="btn-tooltip">Fullscreen</span>
-                    </button>
-
-                    @permission('edit_media')
-                    <a href="{{ route('admin.media.edit', $item) }}" class="btn btn-sm btn-primary action-btn"
-                        title="Edit Media">
-                        <i class="fas fa-edit"></i>
-                        <span class="btn-tooltip">Edit</span>
-                    </a>
-                    @endpermission
-
-                    @permission('delete_media')
-                    <form method="POST" action="{{ route('admin.media.destroy', $item) }}" class="inline delete-form">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="btn btn-sm btn-danger action-btn delete-btn" title="Delete Media"
-                            onclick="return confirm('Are you sure you want to delete this media item? This action cannot be undone.')">
-                            <i class="fas fa-trash"></i>
-                            <span class="btn-tooltip">Delete</span>
+                        <button class="btn btn-sm btn-outline action-btn enhanced-action fullscreen-btn" data-media-id="{{ $item->id }}"
+                            data-media-type="{{ $item->type }}" data-file-path="{{ asset('storage/' . $item->file_path) }}"
+                            data-title="{{ $item->title }}" data-description="{{ $item->description }}"
+                            title="Fullscreen View">
+                            <i class="fas fa-expand"></i>
+                            <span class="btn-tooltip">Fullscreen</span>
                         </button>
-                    </form>
-                    @endpermission
+                    </div>
+
+                    <div class="action-group secondary-actions">
+                        @permission('edit_media')
+                        <a href="{{ route('admin.media.edit', $item) }}" class="btn btn-sm btn-primary action-btn enhanced-action"
+                            title="Edit Media">
+                            <i class="fas fa-edit"></i>
+                            <span class="btn-tooltip">Edit</span>
+                        </a>
+                        @endpermission
+
+                        @permission('delete_media')
+                        <form method="POST" action="{{ route('admin.media.destroy', $item) }}" class="inline delete-form">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-sm btn-danger action-btn enhanced-action delete-btn" title="Delete Media"
+                                onclick="return confirm('Are you sure you want to delete this media item? This action cannot be undone.')">
+                                <i class="fas fa-trash"></i>
+                                <span class="btn-tooltip">Delete</span>
+                            </button>
+                        </form>
+                        @endpermission
+                    </div>
                 </div>
             </div>
             @endforeach
         </div>
 
-        <div class="pagination-wrapper enhanced-pagination">
-            {{ $media->links() }}
-        </div>
+        <x-enhanced-pagination
+            :paginator="$media"
+            :show-per-page-selector="true"
+            :per-page-options="[5, 10, 20, 50, 100]"
+            :show-page-info="true"
+            :show-jump-to-page="true"
+            :max-visible-pages="7" />
         @else
         <div class="empty-state enhanced-empty-state">
             <div class="empty-icon">
@@ -400,123 +479,123 @@
 
 @push('scripts')
 <script>
-function toggleFilters() {
-    const form = document.getElementById('filtersForm');
-    const toggleBtn = document.querySelector('.toggle-btn');
-    const icon = toggleBtn.querySelector('i');
-    const text = toggleBtn.querySelector('span');
+    function toggleFilters() {
+        const form = document.getElementById('filtersForm');
+        const toggleBtn = document.querySelector('.toggle-btn');
+        const icon = toggleBtn.querySelector('i');
+        const text = toggleBtn.querySelector('span');
 
-    if (form.style.display === 'none' || form.style.display === '') {
-        form.style.display = 'block';
-        icon.className = 'fas fa-chevron-up';
-        text.textContent = 'Hide Filters';
-        toggleBtn.classList.add('active');
-    } else {
-        form.style.display = 'none';
-        icon.className = 'fas fa-chevron-down';
-        text.textContent = 'Show Filters';
-        toggleBtn.classList.remove('active');
+        if (form.style.display === 'none' || form.style.display === '') {
+            form.style.display = 'block';
+            icon.className = 'fas fa-chevron-up';
+            text.textContent = 'Hide Filters';
+            toggleBtn.classList.add('active');
+        } else {
+            form.style.display = 'none';
+            icon.className = 'fas fa-chevron-down';
+            text.textContent = 'Show Filters';
+            toggleBtn.classList.remove('active');
+        }
     }
-}
 
-// Initialize filters as hidden by default
-document.addEventListener('DOMContentLoaded', function() {
-    const form = document.getElementById('filtersForm');
-    form.style.display = 'none';
+    // Initialize filters as hidden by default
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('filtersForm');
+        form.style.display = 'none';
 
-    // Add event listeners for fullscreen buttons
-    console.log('Setting up fullscreen button event listeners...');
-    const fullscreenButtons = document.querySelectorAll('.fullscreen-btn');
-    console.log('Found fullscreen buttons:', fullscreenButtons.length);
+        // Add event listeners for fullscreen buttons
+        console.log('Setting up fullscreen button event listeners...');
+        const fullscreenButtons = document.querySelectorAll('.fullscreen-btn');
+        console.log('Found fullscreen buttons:', fullscreenButtons.length);
 
-    fullscreenButtons.forEach((btn, index) => {
-        console.log(`Button ${index}:`, {
-            mediaId: btn.dataset.mediaId,
-            mediaType: btn.dataset.mediaType,
-            filePath: btn.dataset.filePath,
-            title: btn.dataset.title,
-            description: btn.dataset.description
-        });
-
-        btn.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-
-            console.log('Fullscreen button clicked!', {
-                mediaId: this.dataset.mediaId,
-                mediaType: this.dataset.mediaType,
-                filePath: this.dataset.filePath,
-                title: this.dataset.title,
-                description: this.dataset.description
+        fullscreenButtons.forEach((btn, index) => {
+            console.log(`Button ${index}:`, {
+                mediaId: btn.dataset.mediaId,
+                mediaType: btn.dataset.mediaType,
+                filePath: btn.dataset.filePath,
+                title: btn.dataset.title,
+                description: btn.dataset.description
             });
 
-            const mediaId = this.dataset.mediaId;
-            const mediaType = this.dataset.mediaType;
-            const filePath = this.dataset.filePath;
-            const title = this.dataset.title;
-            const description = this.dataset.description;
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
 
-            if (!mediaId || !mediaType) {
-                console.error('Missing required data attributes');
-                alert('Error: Missing media information');
-                return;
-            }
+                console.log('Fullscreen button clicked!', {
+                    mediaId: this.dataset.mediaId,
+                    mediaType: this.dataset.mediaType,
+                    filePath: this.dataset.filePath,
+                    title: this.dataset.title,
+                    description: this.dataset.description
+                });
 
-            openMediaFullscreen(mediaId, mediaType, filePath, title, description);
+                const mediaId = this.dataset.mediaId;
+                const mediaType = this.dataset.mediaType;
+                const filePath = this.dataset.filePath;
+                const title = this.dataset.title;
+                const description = this.dataset.description;
+
+                if (!mediaId || !mediaType) {
+                    console.error('Missing required data attributes');
+                    alert('Error: Missing media information');
+                    return;
+                }
+
+                openMediaFullscreen(mediaId, mediaType, filePath, title, description);
+            });
         });
+
+        console.log('Fullscreen button setup complete');
     });
 
-    console.log('Fullscreen button setup complete');
-});
+    // Slideshow functionality
+    let slideshowModal;
+    let slideshowMedia = [];
+    let currentSlideIndex = 0;
 
-// Slideshow functionality
-let slideshowModal;
-let slideshowMedia = [];
-let currentSlideIndex = 0;
+    function testSlideshow() {
+        // Get all media items from the new card layout (not just photos)
+        const allMedia = Array.from(document.querySelectorAll('.enhanced-media-card')).map(card => {
+            const mediaId = card.dataset.mediaId;
+            const mediaType = card.dataset.type;
+            const title = card.querySelector('.media-title')?.textContent || 'Untitled';
+            const description = card.querySelector('.media-description')?.textContent || '';
+            const date = card.querySelector('.media-date')?.textContent || '';
+            const filePath = card.querySelector('.media-image')?.src ||
+                card.querySelector('.media-video source')?.src ||
+                card.querySelector('.media-audio source')?.src || '';
 
-function testSlideshow() {
-    // Get all media items from the new card layout (not just photos)
-    const allMedia = Array.from(document.querySelectorAll('.enhanced-media-card')).map(card => {
-        const mediaId = card.dataset.mediaId;
-        const mediaType = card.dataset.type;
-        const title = card.querySelector('.media-title')?.textContent || 'Untitled';
-        const description = card.querySelector('.media-description')?.textContent || '';
-        const date = card.querySelector('.media-date')?.textContent || '';
-        const filePath = card.querySelector('.media-image')?.src ||
-            card.querySelector('.media-video source')?.src ||
-            card.querySelector('.media-audio source')?.src || '';
+            return {
+                id: mediaId,
+                type: mediaType,
+                title: title,
+                description: description,
+                date: date,
+                filePath: filePath,
+                element: card
+            };
+        });
 
-        return {
-            id: mediaId,
-            type: mediaType,
-            title: title,
-            description: description,
-            date: date,
-            filePath: filePath,
-            element: card
-        };
-    });
+        if (allMedia.length === 0) {
+            alert('No media found to display in slideshow.');
+            return;
+        }
 
-    if (allMedia.length === 0) {
-        alert('No media found to display in slideshow.');
-        return;
+        slideshowMedia = allMedia;
+        createSlideshowModal();
+        showSlide(0);
+        document.addEventListener('keydown', handleSlideshowKeydown);
     }
 
-    slideshowMedia = allMedia;
-    createSlideshowModal();
-    showSlide(0);
-    document.addEventListener('keydown', handleSlideshowKeydown);
-}
+    function createSlideshowModal() {
+        // Remove existing modal if any
+        if (slideshowModal) {
+            slideshowModal.remove();
+        }
 
-function createSlideshowModal() {
-    // Remove existing modal if any
-    if (slideshowModal) {
-        slideshowModal.remove();
-    }
-
-    slideshowModal = document.createElement('div');
-    slideshowModal.className = 'slideshow-modal';
-    slideshowModal.innerHTML = `
+        slideshowModal = document.createElement('div');
+        slideshowModal.className = 'slideshow-modal';
+        slideshowModal.innerHTML = `
         <div class="slideshow-content">
             <div class="slideshow-header">
                 <h3>Photo Slideshow</h3>
@@ -561,172 +640,177 @@ function createSlideshowModal() {
         </div>
     `;
 
-    document.body.appendChild(slideshowModal);
-    slideshowModal.style.display = 'block';
-}
-
-function showSlide(index) {
-    if (index < 0 || index >= slideshowMedia.length) return;
-
-    currentSlideIndex = index;
-    const media = slideshowMedia[index];
-
-    // Update slide content based on media type
-    const slideContainer = slideshowModal.querySelector('.slide-container');
-    const slideTitle = document.getElementById('slideTitle');
-    const slideDescription = document.getElementById('slideDescription');
-    const slideDate = document.getElementById('slideDate');
-    const slideAlbum = document.getElementById('slideAlbum');
-    const currentSlide = document.getElementById('currentSlide');
-    const totalSlides = document.getElementById('totalSlides');
-
-    // Check if elements exist before proceeding
-    if (!slideContainer || !slideTitle || !slideDescription || !slideDate || !slideAlbum || !currentSlide || !
-        totalSlides) {
-        console.error('Required slideshow elements not found');
-        return;
+        document.body.appendChild(slideshowModal);
+        slideshowModal.style.display = 'block';
     }
 
-    // Clear previous content
-    slideContainer.innerHTML = '';
+    function showSlide(index) {
+        if (index < 0 || index >= slideshowMedia.length) return;
 
-    // Create media content based on type
-    let mediaContent = '';
-    if (media.filePath) {
-        switch (media.type) {
-            case 'photo':
-                mediaContent =
-                    `<img src="${media.filePath}" alt="${media.title}" class="slide-image" style="display: block;">`;
-                break;
-            case 'video':
-                mediaContent = `<video controls preload="metadata" class="slide-video">
+        currentSlideIndex = index;
+        const media = slideshowMedia[index];
+
+        // Update slide content based on media type
+        const slideContainer = slideshowModal.querySelector('.slide-container');
+        const slideTitle = document.getElementById('slideTitle');
+        const slideDescription = document.getElementById('slideDescription');
+        const slideDate = document.getElementById('slideDate');
+        const slideAlbum = document.getElementById('slideAlbum');
+        const currentSlide = document.getElementById('currentSlide');
+        const totalSlides = document.getElementById('totalSlides');
+
+        // Check if elements exist before proceeding
+        if (!slideContainer || !slideTitle || !slideDescription || !slideDate || !slideAlbum || !currentSlide || !
+            totalSlides) {
+            console.error('Required slideshow elements not found');
+            return;
+        }
+
+        // Clear previous content
+        slideContainer.innerHTML = '';
+
+        // Create media content based on type
+        let mediaContent = '';
+        if (media.filePath) {
+            switch (media.type) {
+                case 'photo':
+                    mediaContent =
+                        `<img src="${media.filePath}" alt="${media.title}" class="slide-image" style="display: block;">`;
+                    break;
+                case 'video':
+                    mediaContent = `<video controls preload="metadata" class="slide-video">
                     <source src="${media.filePath}" type="video/mp4">
                     <source src="${media.filePath}" type="video/webm">
                     <source src="${media.filePath}" type="video/ogg">
                     Your browser does not support video playback.
                 </video>`;
-                break;
-            case 'audio':
-                mediaContent = `<audio controls preload="metadata" class="slide-audio">
+                    break;
+                case 'audio':
+                    mediaContent = `<audio controls preload="metadata" class="slide-audio">
                     <source src="${media.filePath}" type="audio/mpeg">
                     <source src="${media.filePath}" type="audio/ogg">
                     <source src="${media.filePath}" type="audio/wav">
                     Your browser does not support audio playback.
                 </audio>`;
-                break;
-            default:
-                mediaContent = `<div class="file-preview">
+                    break;
+                default:
+                    mediaContent = `<div class="file-preview">
                     <i class="fas fa-file fa-3x"></i>
                     <p>File Type: ${media.type}</p>
                     <a href="${media.filePath}" target="_blank" class="btn btn-primary">Open File</a>
                 </div>`;
-        }
-    } else {
-        mediaContent = `<div class="no-file-available">
+            }
+        } else {
+            mediaContent = `<div class="no-file-available">
             <i class="fas fa-exclamation-triangle fa-3x"></i>
             <p>No file available</p>
         </div>`;
-    }
+        }
 
-    // Add media content to container
-    slideContainer.innerHTML = mediaContent;
+        // Add media content to container
+        slideContainer.innerHTML = mediaContent;
 
-    // Update info
-    slideTitle.textContent = media.title || 'Untitled';
-    slideDescription.textContent = media.description || '';
-    slideDate.textContent = media.date || '';
+        // Update info
+        slideTitle.textContent = media.title || 'Untitled';
+        slideDescription.textContent = media.description || '';
+        slideDate.textContent = media.date || '';
 
-    // Try to get album info if available
-    if (media.element) {
-        const albumInfo = media.element.querySelector('.media-concert');
-        if (albumInfo) {
-            slideAlbum.textContent = albumInfo.textContent.trim();
+        // Try to get album info if available
+        if (media.element) {
+            const albumInfo = media.element.querySelector('.media-concert');
+            if (albumInfo) {
+                slideAlbum.textContent = albumInfo.textContent.trim();
+            } else {
+                slideAlbum.textContent = '';
+            }
         } else {
             slideAlbum.textContent = '';
         }
-    } else {
-        slideAlbum.textContent = '';
+
+        // Update counter
+        currentSlide.textContent = index + 1;
+        totalSlides.textContent = slideshowMedia.length;
     }
 
-    // Update counter
-    currentSlide.textContent = index + 1;
-    totalSlides.textContent = slideshowMedia.length;
-}
-
-function previousSlide() {
-    if (currentSlideIndex > 0) {
-        showSlide(currentSlideIndex - 1);
-    } else {
-        showSlide(slideshowMedia.length - 1); // Loop to last slide
-    }
-}
-
-function nextSlide() {
-    if (currentSlideIndex < slideshowMedia.length - 1) {
-        showSlide(currentSlideIndex + 1);
-    } else {
-        showSlide(0); // Loop to first slide
-    }
-}
-
-function closeSlideshow() {
-    if (slideshowModal) {
-        slideshowModal.style.display = 'none';
-        document.removeEventListener('keydown', handleSlideshowKeydown);
-    }
-}
-
-function handleSlideshowKeydown(event) {
-    switch (event.key) {
-        case 'ArrowLeft':
-            previousSlide();
-            break;
-        case 'ArrowRight':
-            nextSlide();
-            break;
-        case 'Escape':
-            closeSlideshow();
-            break;
-    }
-}
-
-function toggleFullscreen() {
-    if (!document.fullscreenElement) {
-        if (slideshowModal.requestFullscreen) {
-            slideshowModal.requestFullscreen();
-        } else if (slideshowModal.webkitRequestFullscreen) {
-            slideshowModal.webkitRequestFullscreen();
-        } else if (slideshowModal.msRequestFullscreen) {
-            slideshowModal.msRequestFullscreen();
-        }
-    } else {
-        if (document.exitFullscreen) {
-            document.exitFullscreen();
-        } else if (document.webkitExitFullscreen) {
-            document.webkitExitFullscreen();
-        } else if (document.msExitFullscreen) {
-            document.msExitFullscreen();
+    function previousSlide() {
+        if (currentSlideIndex > 0) {
+            showSlide(currentSlideIndex - 1);
+        } else {
+            showSlide(slideshowMedia.length - 1); // Loop to last slide
         }
     }
-}
 
-// Function to open individual media in fullscreen
-function openMediaFullscreen(mediaId, mediaType, filePath, title, description) {
-    console.log('openMediaFullscreen called with:', {
-        mediaId,
-        mediaType,
-        filePath,
-        title,
-        description
-    });
+    function nextSlide() {
+        if (currentSlideIndex < slideshowMedia.length - 1) {
+            showSlide(currentSlideIndex + 1);
+        } else {
+            showSlide(0); // Loop to first slide
+        }
+    }
 
-    // Create fullscreen modal
-    const fullscreenModal = document.createElement('div');
-    fullscreenModal.className = 'fullscreen-modal';
-    fullscreenModal.innerHTML = `
+    function closeSlideshow() {
+        if (slideshowModal) {
+            slideshowModal.style.display = 'none';
+            document.removeEventListener('keydown', handleSlideshowKeydown);
+        }
+    }
+
+    function handleSlideshowKeydown(event) {
+        switch (event.key) {
+            case 'ArrowLeft':
+                previousSlide();
+                break;
+            case 'ArrowRight':
+                nextSlide();
+                break;
+            case 'Escape':
+                closeSlideshow();
+                break;
+        }
+    }
+
+    function toggleFullscreen() {
+        if (!document.fullscreenElement) {
+            if (slideshowModal.requestFullscreen) {
+                slideshowModal.requestFullscreen();
+            } else if (slideshowModal.webkitRequestFullscreen) {
+                slideshowModal.webkitRequestFullscreen();
+            } else if (slideshowModal.msRequestFullscreen) {
+                slideshowModal.msRequestFullscreen();
+            }
+        } else {
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            } else if (document.webkitExitFullscreen) {
+                document.webkitExitFullscreen();
+            } else if (document.msExitFullscreen) {
+                document.msExitFullscreen();
+            }
+        }
+    }
+
+    // Function to open individual media in fullscreen
+    function openMediaFullscreen(mediaId, mediaType, filePath, title, description) {
+        console.log('openMediaFullscreen called with:', {
+            mediaId,
+            mediaType,
+            filePath,
+            title,
+            description
+        });
+
+        // Remove any existing fullscreen modal
+        if (window.currentFullscreenModal) {
+            window.currentFullscreenModal.remove();
+        }
+
+        // Create fullscreen modal
+        const fullscreenModal = document.createElement('div');
+        fullscreenModal.className = 'fullscreen-modal active';
+        fullscreenModal.innerHTML = `
         <div class="fullscreen-content">
             <div class="fullscreen-header">
-                <h3>${title}</h3>
+                <h3>${title || 'Media Viewer'}</h3>
                 <div class="fullscreen-actions">
                     <button class="btn btn-sm btn-secondary" onclick="toggleFullscreenView()" title="Toggle Fullscreen (F)">
                         <i class="fas fa-expand"></i>
@@ -743,7 +827,7 @@ function openMediaFullscreen(mediaId, mediaType, filePath, title, description) {
                 </div>
                 
                 <div class="fullscreen-info">
-                    <h4>${title}</h4>
+                    <h4>${title || 'Untitled'}</h4>
                     <p>${description || 'No description available'}</p>
                 </div>
             </div>
@@ -754,164 +838,191 @@ function openMediaFullscreen(mediaId, mediaType, filePath, title, description) {
                         <i class="fas fa-download"></i>
                         Download
                     </button>
+                    <button class="btn btn-primary" onclick="openMediaView('${mediaId}')">
+                        <i class="fas fa-external-link-alt"></i>
+                        View Details
+                    </button>
                 </div>
             </div>
         </div>
     `;
 
-    console.log('Fullscreen modal created, adding to DOM...');
-    document.body.appendChild(fullscreenModal);
-    fullscreenModal.style.display = 'block';
-    console.log('Fullscreen modal should now be visible');
+        console.log('Fullscreen modal created, adding to DOM...');
+        document.body.appendChild(fullscreenModal);
 
-    // Add keyboard event listener
-    document.addEventListener('keydown', handleFullscreenKeydown);
+        // Add fade-in animation
+        setTimeout(() => {
+            fullscreenModal.style.opacity = '1';
+        }, 10);
 
-    // Store reference for cleanup
-    window.currentFullscreenModal = fullscreenModal;
-}
+        // Add keyboard event listener
+        document.addEventListener('keydown', handleFullscreenKeydown);
 
-// Helper function to get media HTML based on type
-function getMediaHTML(type, filePath, title) {
-    if (!filePath) {
-        return `<div class="no-file-available">
+        // Store reference for cleanup
+        window.currentFullscreenModal = fullscreenModal;
+    }
+
+    // Function to open media view
+    function openMediaView(mediaId) {
+        if (mediaId) {
+            window.open(`/admin/media/${mediaId}`, '_blank');
+        }
+    }
+
+    // Helper function to get media HTML based on type
+    function getMediaHTML(type, filePath, title) {
+        if (!filePath) {
+            return `<div class="no-file-available">
             <i class="fas fa-exclamation-triangle fa-3x"></i>
             <p>No file available</p>
         </div>`;
-    }
+        }
 
-    switch (type) {
-        case 'photo':
-            return `<img src="${filePath}" alt="${title}" class="fullscreen-image">`;
-        case 'video':
-            return `<video controls preload="metadata" class="fullscreen-video">
+        switch (type) {
+            case 'photo':
+                return `<img src="${filePath}" alt="${title}" class="fullscreen-image">`;
+            case 'video':
+                return `<video controls preload="metadata" class="fullscreen-video">
                 <source src="${filePath}" type="video/mp4">
                 <source src="${filePath}" type="video/webm">
                 <source src="${filePath}" type="video/ogg">
                 Your browser does not support video playback.
             </video>`;
-        case 'audio':
-            return `<audio controls preload="metadata" class="fullscreen-audio">
+            case 'audio':
+                return `<audio controls preload="metadata" class="fullscreen-audio">
                 <source src="${filePath}" type="audio/mpeg">
                 <source src="${filePath}" type="audio/ogg">
                 <source src="${filePath}" type="audio/wav">
                 Your browser does not support audio playback.
             </audio>`;
-        default:
-            return `<div class="file-preview">
+            default:
+                return `<div class="file-preview">
                 <i class="fas fa-file fa-3x"></i>
                 <p>File Type: ${type}</p>
                 <a href="${filePath}" target="_blank" class="btn btn-primary">Open File</a>
             </div>`;
-    }
-}
-
-// Function to close fullscreen view
-function closeFullscreenView() {
-    if (window.currentFullscreenModal) {
-        window.currentFullscreenModal.remove();
-        window.currentFullscreenModal = null;
-        document.removeEventListener('keydown', handleFullscreenKeydown);
-    }
-}
-
-// Function to toggle fullscreen view
-function toggleFullscreenView() {
-    if (!document.fullscreenElement) {
-        if (window.currentFullscreenModal.requestFullscreen) {
-            window.currentFullscreenModal.requestFullscreen();
-        } else if (window.currentFullscreenModal.webkitRequestFullscreen) {
-            window.currentFullscreenModal.webkitRequestFullscreen();
-        } else if (window.currentFullscreenModal.msRequestFullscreen) {
-            window.currentFullscreenModal.msRequestFullscreen();
-        }
-    } else {
-        if (document.exitFullscreen) {
-            document.exitFullscreen();
-        } else if (document.webkitExitFullscreen) {
-            document.webkitExitFullscreen();
-        } else if (document.msExitFullscreen) {
-            document.msExitFullscreen();
         }
     }
-}
 
-// Function to handle fullscreen keyboard events
-function handleFullscreenKeydown(event) {
-    switch (event.key) {
-        case 'Escape':
-            closeFullscreenView();
-            break;
-        case 'f':
-        case 'F':
-            toggleFullscreenView();
-            break;
+    // Function to close fullscreen view
+    function closeFullscreenView() {
+        if (window.currentFullscreenModal) {
+            // Add fade-out animation
+            window.currentFullscreenModal.style.opacity = '0';
+            setTimeout(() => {
+                window.currentFullscreenModal.remove();
+                window.currentFullscreenModal = null;
+                document.removeEventListener('keydown', handleFullscreenKeydown);
+            }, 300);
+        }
     }
-}
 
-// Function to download media
-function downloadMedia(filePath) {
-    if (filePath) {
-        const link = document.createElement('a');
-        link.href = filePath;
-        link.download = filePath.split('/').pop();
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+    // Function to toggle fullscreen view
+    function toggleFullscreenView() {
+        if (!document.fullscreenElement) {
+            if (window.currentFullscreenModal.requestFullscreen) {
+                window.currentFullscreenModal.requestFullscreen();
+            } else if (window.currentFullscreenModal.webkitRequestFullscreen) {
+                window.currentFullscreenModal.webkitRequestFullscreen();
+            } else if (window.currentFullscreenModal.msRequestFullscreen) {
+                window.currentFullscreenModal.msRequestFullscreen();
+            }
+        } else {
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            } else if (document.webkitExitFullscreen) {
+                document.webkitExitFullscreen();
+            } else if (document.msExitFullscreen) {
+                document.msExitFullscreen();
+            }
+        }
     }
-}
+
+    // Function to handle fullscreen keyboard events
+    function handleFullscreenKeydown(event) {
+        switch (event.key) {
+            case 'Escape':
+                closeFullscreenView();
+                break;
+            case 'f':
+            case 'F':
+                toggleFullscreenView();
+                break;
+        }
+    }
+
+    // Function to download media
+    function downloadMedia(filePath) {
+        if (filePath) {
+            const link = document.createElement('a');
+            link.href = filePath;
+            link.download = filePath.split('/').pop();
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    }
+
+    // Helper function to format file sizes
+    function formatBytes(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
 </script>
 @endpush
 
 <script>
-// Ensure videos maintain proper fitting after loading
-document.addEventListener('DOMContentLoaded', function() {
-    const videos = document.querySelectorAll('.media-video');
+    // Ensure videos maintain proper fitting after loading
+    document.addEventListener('DOMContentLoaded', function() {
+        const videos = document.querySelectorAll('.media-video');
 
-    videos.forEach(video => {
-        // Force video sizing after load
-        video.addEventListener('loadedmetadata', function() {
-            this.style.width = '100%';
-            this.style.height = '100%';
-            this.style.objectFit = 'cover';
-        });
-
-        // Force video sizing after play
-        video.addEventListener('play', function() {
-            this.style.width = '100%';
-            this.style.height = '100%';
-            this.style.objectFit = 'cover';
-        });
-
-        // Force video sizing after pause
-        video.addEventListener('pause', function() {
-            this.style.width = '100%';
-            this.style.height = '100%';
-            this.style.objectFit = 'cover';
-        });
-
-        // Force video sizing after seeking
-        video.addEventListener('seeked', function() {
-            this.style.width = '100%';
-            this.style.height = '100%';
-            this.style.objectFit = 'cover';
-        });
-
-        // Force video sizing after time update
-        video.addEventListener('timeupdate', function() {
-            this.style.width = '100%';
-            this.style.height = '100%';
-            this.style.objectFit = 'cover';
-        });
-    });
-
-    // Also handle window resize
-    window.addEventListener('resize', function() {
         videos.forEach(video => {
-            video.style.width = '100%';
-            video.style.height = '100%';
-            video.style.objectFit = 'cover';
+            // Force video sizing after load
+            video.addEventListener('loadedmetadata', function() {
+                this.style.width = '100%';
+                this.style.height = '100%';
+                this.style.objectFit = 'cover';
+            });
+
+            // Force video sizing after play
+            video.addEventListener('play', function() {
+                this.style.width = '100%';
+                this.style.height = '100%';
+                this.style.objectFit = 'cover';
+            });
+
+            // Force video sizing after pause
+            video.addEventListener('pause', function() {
+                this.style.width = '100%';
+                this.style.height = '100%';
+                this.style.objectFit = 'cover';
+            });
+
+            // Force video sizing after seeking
+            video.addEventListener('seeked', function() {
+                this.style.width = '100%';
+                this.style.height = '100%';
+                this.style.objectFit = 'cover';
+            });
+
+            // Force video sizing after time update
+            video.addEventListener('timeupdate', function() {
+                this.style.width = '100%';
+                this.style.height = '100%';
+                this.style.objectFit = 'cover';
+            });
+        });
+
+        // Also handle window resize
+        window.addEventListener('resize', function() {
+            videos.forEach(video => {
+                video.style.width = '100%';
+                video.style.height = '100%';
+                video.style.objectFit = 'cover';
+            });
         });
     });
-});
 </script>

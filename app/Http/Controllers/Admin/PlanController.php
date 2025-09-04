@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Plan;
+use App\Services\PlanExportService;
 use Illuminate\Http\Request;
 
 class PlanController extends Controller
@@ -15,31 +16,29 @@ class PlanController extends Controller
     {
         $query = Plan::query();
 
-        // Filter by year
-        if ($request->filled('year')) {
-            $query->where('year', $request->year);
+        // Apply filters based on request
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', '%' . $search . '%')
+                    ->orWhere('description', 'like', '%' . $search . '%');
+            });
         }
 
-        // Filter by status
         if ($request->filled('status')) {
-            $query->where('status', strtolower($request->status));
+            $query->where('status', $request->status);
         }
 
-        // Filter by quarter
+        if ($request->filled('category')) {
+            $query->where('category', $request->category);
+        }
+
         if ($request->filled('quarter')) {
             $query->where('quarter', $request->quarter);
         }
 
-        // Search by title or description
-        if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where(function ($q) use ($search) {
-                $q->where('title', 'like', "%{$search}%")
-                    ->orWhere('description', 'like', "%{$search}%");
-            });
-        }
-
-        $plans = $query->orderBy('year', 'desc')->orderBy('created_at', 'desc')->paginate(20)->withQueryString();
+        $perPage = $request->get('per_page', 10);
+        $plans = $query->paginate($perPage);
 
         return view('admin.plans.index', compact('plans'));
     }
@@ -60,24 +59,22 @@ class PlanController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'period_type' => 'required|in:yearly,quarterly,monthly',
             'year' => 'required|integer|min:2020|max:2030',
-            'quarter' => 'nullable|in:Q1,Q2,Q3,Q4',
-            'month' => 'nullable|string|size:2',
+            'period_type' => 'nullable|string|in:yearly,quarterly,monthly',
+            'quarter' => 'nullable|integer|min:1|max:4',
+            'month' => 'nullable|integer|min:1|max:12',
             'start_date' => 'required|date',
             'end_date' => 'required|date|after:start_date',
-            'category' => 'nullable|in:performance,training,fundraising,community,administration',
-            'status' => 'required|in:planned,in_progress,completed,cancelled',
+            'status' => 'required|string|in:draft,active,completed,cancelled',
+            'category' => 'nullable|string|in:performance,training,fundraising,community,administration,workshop',
             'estimated_budget' => 'nullable|numeric|min:0',
-            'budget' => 'nullable|string',
-            'objectives' => 'nullable|string',
-            'activities' => 'nullable|string',
             'notes' => 'nullable|string',
         ]);
 
-        Plan::create($validated);
+        $plan = Plan::create($validated);
 
-        return redirect()->route('admin.plans.index')->with('success', 'Year plan created successfully.');
+        return redirect()->route('admin.plans.show', $plan)
+            ->with('success', 'Plan created successfully.');
     }
 
     /**
@@ -104,24 +101,22 @@ class PlanController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'period_type' => 'required|in:yearly,quarterly,monthly',
             'year' => 'required|integer|min:2020|max:2030',
-            'quarter' => 'nullable|in:Q1,Q2,Q3,Q4',
-            'month' => 'nullable|string|size:2',
+            'period_type' => 'nullable|string|in:yearly,quarterly,monthly',
+            'quarter' => 'nullable|integer|min:1|max:4',
+            'month' => 'nullable|integer|min:1|max:12',
             'start_date' => 'required|date',
             'end_date' => 'required|date|after:start_date',
-            'category' => 'nullable|in:performance,training,fundraising,community,administration',
-            'status' => 'required|in:planned,in_progress,completed,cancelled',
+            'status' => 'required|string|in:draft,active,completed,cancelled',
+            'category' => 'nullable|string|in:performance,training,fundraising,community,administration,workshop',
             'estimated_budget' => 'nullable|numeric|min:0',
-            'budget' => 'nullable|string',
-            'objectives' => 'nullable|string',
-            'activities' => 'nullable|string',
             'notes' => 'nullable|string',
         ]);
 
         $plan->update($validated);
 
-        return redirect()->route('admin.plans.index')->with('success', 'Year plan updated successfully.');
+        return redirect()->route('admin.plans.show', $plan)
+            ->with('success', 'Plan updated successfully.');
     }
 
     /**
@@ -131,6 +126,25 @@ class PlanController extends Controller
     {
         $plan->delete();
 
-        return redirect()->route('admin.plans.index')->with('success', 'Year plan deleted successfully.');
+        return redirect()->route('admin.plans.index')
+            ->with('success', 'Plan deleted successfully.');
+    }
+
+    /**
+     * Export to Excel
+     */
+    public function exportExcel(Request $request)
+    {
+        $exportService = new PlanExportService();
+        return $exportService->exportToExcel($request);
+    }
+
+    /**
+     * Export to PDF
+     */
+    public function exportPdf(Request $request)
+    {
+        $exportService = new PlanExportService();
+        return $exportService->exportToPdf($request);
     }
 }

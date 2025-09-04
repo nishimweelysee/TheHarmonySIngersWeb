@@ -6,6 +6,8 @@ use App\Http\Controllers\ConcertController;
 use App\Http\Controllers\MediaController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\PublicMemberController;
+
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\MemberController;
 use App\Http\Controllers\Admin\ContributionController;
@@ -16,6 +18,7 @@ use App\Http\Controllers\Admin\PracticeSessionController;
 use App\Http\Controllers\Admin\ChartOfAccountsController;
 use App\Http\Controllers\Admin\ExpensesController;
 use App\Http\Controllers\Admin\FinancialReportsController;
+use App\Http\Controllers\Admin\AuditLogController;
 use Illuminate\Support\Facades\Route;
 
 // Public routes
@@ -25,6 +28,12 @@ Route::get('/concerts/{concert}', [ConcertController::class, 'show'])->name('con
 Route::get('/media', [MediaController::class, 'index'])->name('media.index');
 Route::get('/contact', [ContactController::class, 'index'])->name('contact.index');
 Route::post('/contact', [ContactController::class, 'store'])->name('contact.store');
+
+// Public member registration routes (no authentication required)
+Route::get('/join', [PublicMemberController::class, 'create'])->name('public.member-register');
+Route::post('/join', [PublicMemberController::class, 'store'])->name('public.member-register.store');
+
+
 
 // Notification routes (protected by auth middleware)
 Route::middleware(['auth', 'verified'])->group(function () {
@@ -69,9 +78,80 @@ Route::middleware(['auth', 'verified', \App\Http\Middleware\HandleLargeUploads::
 
     Route::get('members/search', [MemberController::class, 'search'])->middleware('permission:view_members')->name('members.search');
 
+    // Export routes for members
+    Route::middleware('permission:view_members')->group(function () {
+        Route::get('members/export/excel', [MemberController::class, 'exportExcel'])->name('members.export.excel');
+        Route::get('members/export/pdf', [MemberController::class, 'exportPdf'])->name('members.export.pdf');
+    });
+
+    // Export routes for users
+    Route::middleware('permission:view_users')->group(function () {
+        Route::get('users/export/excel', [\App\Http\Controllers\Admin\UserController::class, 'exportExcel'])->name('users.export.excel');
+        Route::get('users/export/pdf', [\App\Http\Controllers\Admin\UserController::class, 'exportPdf'])->name('users.export.pdf');
+    });
+
+    // Export routes for songs
+    Route::middleware('permission:view_songs')->group(function () {
+        Route::get('songs/export/excel', [\App\Http\Controllers\Admin\SongController::class, 'exportExcel'])->name('songs.export.excel');
+        Route::get('songs/export/pdf', [\App\Http\Controllers\Admin\SongController::class, 'exportPdf'])->name('songs.export.pdf');
+    });
+
+    // Export routes for concerts
+    Route::middleware('permission:view_concerts')->group(function () {
+        Route::get('concerts/export/excel', [\App\Http\Controllers\Admin\ConcertController::class, 'exportExcel'])->name('concerts.export.excel');
+        Route::get('concerts/export/pdf', [\App\Http\Controllers\Admin\ConcertController::class, 'exportPdf'])->name('concerts.export.pdf');
+    });
+
+    // Export routes for albums
+    Route::middleware('permission:view_albums')->group(function () {
+        Route::get('albums/export/excel', [\App\Http\Controllers\Admin\AlbumController::class, 'exportExcel'])->name('albums.export.excel');
+        Route::get('albums/export/pdf', [\App\Http\Controllers\Admin\AlbumController::class, 'exportPdf'])->name('albums.export.pdf');
+    });
+
+    // Export routes for instruments
+    Route::middleware('permission:view_instruments')->group(function () {
+        Route::get('instruments/export/excel', [\App\Http\Controllers\Admin\InstrumentController::class, 'exportExcel'])->name('instruments.export.excel');
+        Route::get('instruments/export/pdf', [\App\Http\Controllers\Admin\InstrumentController::class, 'exportPdf'])->name('instruments.export.pdf');
+    });
+
+    // Export routes for roles
+    Route::middleware('permission:view_roles')->group(function () {
+        Route::get('roles/export/excel', [\App\Http\Controllers\Admin\RoleController::class, 'exportExcel'])->name('roles.export.excel');
+        Route::get('roles/export/pdf', [\App\Http\Controllers\Admin\RoleController::class, 'exportPdf'])->name('roles.export.pdf');
+    });
+
+    // Export routes for permissions
+    Route::middleware('permission:view_permissions')->group(function () {
+        Route::get('permissions/export/excel', [\App\Http\Controllers\Admin\PermissionController::class, 'exportExcel'])->name('permissions.export.excel');
+        Route::get('permissions/export/pdf', [\App\Http\Controllers\Admin\PermissionController::class, 'exportPdf'])->name('permissions.export.pdf');
+    });
+
+    // Export routes for other resources
+    Route::middleware('permission:view_sponsors')->group(function () {
+        Route::get('sponsors/export/excel', [\App\Http\Controllers\Admin\SponsorController::class, 'exportExcel'])->name('sponsors.export.excel');
+        Route::get('sponsors/export/pdf', [\App\Http\Controllers\Admin\SponsorController::class, 'exportPdf'])->name('sponsors.export.pdf');
+    });
+
+    Route::middleware('permission:view_plans')->group(function () {
+        Route::get('plans/export/excel', [\App\Http\Controllers\Admin\PlanController::class, 'exportExcel'])->name('plans.export.excel');
+        Route::get('plans/export/pdf', [\App\Http\Controllers\Admin\PlanController::class, 'exportPdf'])->name('plans.export.pdf');
+    });
+
+    Route::middleware('permission:view_contribution_campaigns')->group(function () {
+        Route::get('contribution-campaigns/export/excel', [\App\Http\Controllers\Admin\ContributionCampaignController::class, 'exportExcel'])->name('contribution-campaigns.export.excel');
+        Route::get('contribution-campaigns/export/pdf', [\App\Http\Controllers\Admin\ContributionCampaignController::class, 'exportPdf'])->name('contribution-campaigns.export.pdf');
+    });
+
+    Route::middleware('permission:view_contributions')->group(function () {
+        Route::get('contributions/export/excel', [\App\Http\Controllers\Admin\ContributionController::class, 'exportExcel'])->name('contributions.export.excel');
+        Route::get('contributions/export/pdf', [\App\Http\Controllers\Admin\ContributionController::class, 'exportPdf'])->name('contributions.export.pdf');
+    });
+
     // Contribution campaigns with permission checks
     Route::middleware('permission:view_contribution_campaigns')->group(function () {
         Route::get('contribution-campaigns', [\App\Http\Controllers\Admin\ContributionCampaignController::class, 'index'])->name('contribution-campaigns.index');
+        Route::get('contribution-campaigns/export/excel', [\App\Http\Controllers\Admin\ContributionCampaignController::class, 'exportExcel'])->name('contribution-campaigns.export.excel');
+        Route::get('contribution-campaigns/export/pdf', [\App\Http\Controllers\Admin\ContributionCampaignController::class, 'exportPdf'])->name('contribution-campaigns.export.pdf');
 
         // Create routes must come BEFORE dynamic {contributionCampaign} routes to prevent conflicts
         Route::middleware('permission:create_contribution_campaigns')->group(function () {
@@ -98,6 +178,12 @@ Route::middleware(['auth', 'verified', \App\Http\Middleware\HandleLargeUploads::
             Route::get('contribution-campaigns/{contributionCampaign}/contributions/{contribution}/edit', [\App\Http\Controllers\Admin\ContributionCampaignController::class, 'editContribution'])->name('contribution-campaigns.edit-contribution');
             Route::put('contribution-campaigns/{contributionCampaign}/contributions/{contribution}', [\App\Http\Controllers\Admin\ContributionCampaignController::class, 'updateContribution'])->name('contribution-campaigns.update-contribution');
             Route::delete('contribution-campaigns/{contributionCampaign}/contributions/{contribution}', [\App\Http\Controllers\Admin\ContributionCampaignController::class, 'removeContribution'])->name('contribution-campaigns.remove-contribution');
+        });
+
+        // Contributor exports
+        Route::middleware('permission:view_contribution_campaigns')->group(function () {
+            Route::get('contribution-campaigns/{contributionCampaign}/export-contributors/excel', [\App\Http\Controllers\Admin\ContributionCampaignController::class, 'exportContributorsExcel'])->name('contribution-campaigns.export-contributors.excel');
+            Route::get('contribution-campaigns/{contributionCampaign}/export-contributors/pdf', [\App\Http\Controllers\Admin\ContributionCampaignController::class, 'exportContributorsPdf'])->name('contribution-campaigns.export-contributors.pdf');
         });
     });
 
@@ -126,6 +212,8 @@ Route::middleware(['auth', 'verified', \App\Http\Middleware\HandleLargeUploads::
     // Sponsors with permission checks
     Route::middleware('permission:view_sponsors')->group(function () {
         Route::get('sponsors', [SponsorController::class, 'index'])->name('sponsors.index');
+        Route::get('sponsors/export/excel', [SponsorController::class, 'exportExcel'])->name('sponsors.export.excel');
+        Route::get('sponsors/export/pdf', [SponsorController::class, 'exportPdf'])->name('sponsors.export.pdf');
 
         // Create routes must come BEFORE dynamic {sponsor} routes to prevent conflicts
         Route::middleware('permission:create_sponsors')->group(function () {
@@ -266,12 +354,16 @@ Route::middleware(['auth', 'verified', \App\Http\Middleware\HandleLargeUploads::
             Route::get('practice-sessions/{practiceSession}/attendance', [PracticeSessionController::class, 'attendance'])->name('practice-sessions.attendance');
             Route::post('practice-sessions/{practiceSession}/attendance', [PracticeSessionController::class, 'updateAttendance'])->name('practice-sessions.update-attendance');
             Route::get('practice-sessions/{practiceSession}/export-attendance', [PracticeSessionController::class, 'exportAttendance'])->name('practice-sessions.export-attendance');
+            Route::get('practice-sessions/{practiceSession}/export-attendance/excel', [PracticeSessionController::class, 'exportAttendanceExcel'])->name('practice-sessions.export-attendance.excel');
+            Route::get('practice-sessions/{practiceSession}/export-attendance/pdf', [PracticeSessionController::class, 'exportAttendancePdf'])->name('practice-sessions.export-attendance.pdf');
         });
     });
 
     // Instruments with permission checks
     Route::middleware('permission:view_instruments')->group(function () {
         Route::get('instruments', [\App\Http\Controllers\Admin\InstrumentController::class, 'index'])->name('instruments.index');
+        Route::get('instruments/export/excel', [\App\Http\Controllers\Admin\InstrumentController::class, 'exportExcel'])->name('instruments.export.excel');
+        Route::get('instruments/export/pdf', [\App\Http\Controllers\Admin\InstrumentController::class, 'exportPdf'])->name('instruments.export.pdf');
 
         // Create routes must come BEFORE dynamic {instrument} routes to prevent conflicts
         Route::middleware('permission:create_instruments')->group(function () {
@@ -295,6 +387,8 @@ Route::middleware(['auth', 'verified', \App\Http\Middleware\HandleLargeUploads::
     // Plans with permission checks
     Route::middleware('permission:view_plans')->group(function () {
         Route::get('plans', [\App\Http\Controllers\Admin\PlanController::class, 'index'])->name('plans.index');
+        Route::get('plans/export/excel', [\App\Http\Controllers\Admin\PlanController::class, 'exportExcel'])->name('plans.export.excel');
+        Route::get('plans/export/pdf', [\App\Http\Controllers\Admin\PlanController::class, 'exportPdf'])->name('plans.export.pdf');
 
         // Create routes must come BEFORE dynamic {plan} routes to prevent conflicts
         Route::middleware('permission:create_plans')->group(function () {
@@ -388,6 +482,8 @@ Route::middleware(['auth', 'verified', \App\Http\Middleware\HandleLargeUploads::
     // Notification management with permission checks
     Route::middleware('permission:send_notifications')->group(function () {
         Route::get('notifications', [NotificationManagementController::class, 'index'])->middleware('permission:view_notification_history')->name('notifications.index');
+        Route::get('notifications/export/excel', [NotificationManagementController::class, 'exportExcel'])->middleware('permission:view_notification_history')->name('notifications.export.excel');
+        Route::get('notifications/export/pdf', [NotificationManagementController::class, 'exportPdf'])->middleware('permission:view_notification_history')->name('notifications.export.pdf');
         Route::get('notifications/create', [NotificationManagementController::class, 'create'])->name('notifications.create');
         Route::post('notifications', [NotificationManagementController::class, 'store'])->name('notifications.store');
         Route::get('notifications/stats', [NotificationManagementController::class, 'stats'])->middleware('permission:view_notification_history')->name('notifications.stats');
@@ -441,6 +537,17 @@ Route::middleware(['auth', 'verified', \App\Http\Middleware\HandleLargeUploads::
         Route::get('financial-reports/export/trial-balance', [FinancialReportsController::class, 'exportTrialBalance'])->name('financial-reports.export-trial-balance');
         Route::get('financial-reports/export/balance-sheet', [FinancialReportsController::class, 'exportBalanceSheet'])->name('financial-reports.export-balance-sheet');
     });
+
+    // Audit Logs routes
+    Route::middleware('permission:view_audit_logs')->group(function () {
+        Route::get('audit-logs', [AuditLogController::class, 'index'])->name('audit-logs.index');
+        Route::get('audit-logs/export/excel', [AuditLogController::class, 'exportExcel'])->name('audit-logs.export.excel');
+        Route::get('audit-logs/export/pdf', [AuditLogController::class, 'exportPdf'])->name('audit-logs.export.pdf');
+        Route::get('audit-logs/statistics', [AuditLogController::class, 'statistics'])->name('audit-logs.statistics');
+        Route::get('audit-logs/model/{modelType}/{modelId}', [AuditLogController::class, 'forModel'])->name('audit-logs.model');
+        Route::get('audit-logs/user/{user}', [AuditLogController::class, 'forUser'])->name('audit-logs.user');
+        Route::get('audit-logs/{auditLog}', [AuditLogController::class, 'show'])->name('audit-logs.show');
+    });
 });
 
 // User profile routes
@@ -452,5 +559,6 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::put('/password', [ProfileController::class, 'updatePassword'])->name('password.update');
 });
+
 
 require __DIR__ . '/auth.php';

@@ -2,6 +2,7 @@
 
 @section('title', 'Users')
 @section('page-title', 'Manage Users')
+@section('page-icon', 'user-cog')
 
 @section('content')
 
@@ -46,46 +47,29 @@
                 <div class="btn-glow"></div>
             </a>
             @endpermission
-        </div>
-    </div>
-</div>
 
-<!-- Enhanced Role Statistics Overview -->
-<div class="role-stats-overview enhanced-role-stats">
-    <div class="stat-item enhanced-stat-item">
-        <div class="stat-icon">
-            <i class="fas fa-users"></i>
-        </div>
-        <div class="stat-content">
-            <span class="stat-number">{{ $users->total() }}</span>
-            <span class="stat-label">Total Users</span>
-        </div>
-    </div>
-    <div class="stat-item enhanced-stat-item">
-        <div class="stat-icon">
-            <i class="fas fa-user-shield"></i>
-        </div>
-        <div class="stat-content">
-            <span class="stat-number">{{ $users->where('role.name', 'admin')->count() }}</span>
-            <span class="stat-label">Administrators</span>
-        </div>
-    </div>
-    <div class="stat-item enhanced-stat-item">
-        <div class="stat-icon">
-            <i class="fas fa-user"></i>
-        </div>
-        <div class="stat-content">
-            <span class="stat-number">{{ $users->where('role.name', 'user')->count() }}</span>
-            <span class="stat-label">Regular Users</span>
-        </div>
-    </div>
-    <div class="stat-item enhanced-stat-item">
-        <div class="stat-icon">
-            <i class="fas fa-user-tag"></i>
-        </div>
-        <div class="stat-content">
-            <span class="stat-number">{{ $users->whereNotNull('role_id')->count() }}</span>
-            <span class="stat-label">Users with Roles</span>
+            <!-- Export Actions -->
+            <div class="export-actions">
+                <a href="{{ route('admin.users.export.excel', request()->query()) }}"
+                    class="btn btn-success enhanced-btn"
+                    title="Export to Excel">
+                    <div class="btn-content">
+                        <i class="fas fa-file-excel"></i>
+                        <span>Excel</span>
+                    </div>
+                    <div class="btn-glow"></div>
+                </a>
+
+                <a href="{{ route('admin.users.export.pdf', request()->query()) }}"
+                    class="btn btn-danger enhanced-btn"
+                    title="Export to PDF">
+                    <div class="btn-content">
+                        <i class="fas fa-file-pdf"></i>
+                        <span>PDF</span>
+                    </div>
+                    <div class="btn-glow"></div>
+                </a>
+            </div>
         </div>
     </div>
 </div>
@@ -114,7 +98,7 @@
                             <i class="fas fa-search"></i>
                         </div>
                         <input type="text" name="search" value="{{ request('search') }}"
-                            placeholder="Search users by name, email, or phone..." class="search-input enhanced-input">
+                            placeholder="Search by name, email, or phone..." class="search-input enhanced-input">
                         <div class="search-glow"></div>
                     </div>
                 </div>
@@ -129,6 +113,17 @@
                                 {{ $role->display_name }}
                             </option>
                             @endforeach
+                        </select>
+                    </div>
+
+                    <div class="filter-item">
+                        <label class="filter-label">User Type</label>
+                        <select name="user_type" class="filter-select enhanced-select">
+                            <option value="">All Types</option>
+                            <option value="admin" {{ request('user_type') === 'admin' ? 'selected' : '' }}>
+                                Administrators</option>
+                            <option value="user" {{ request('user_type') === 'user' ? 'selected' : '' }}>Regular Users
+                            </option>
                         </select>
                     </div>
 
@@ -175,14 +170,12 @@
 
     <div class="card-content">
         @if($users->count() > 0)
-        <div class="table-container enhanced-table">
+        <div class="table-container">
             <table class="data-table enhanced-table">
                 <thead>
                     <tr>
-                        <th class="th-user">User</th>
-                        <th class="th-email">Email</th>
+                        <th class="th-name">Name & Contact</th>
                         <th class="th-role">Role</th>
-                        <th class="th-phone">Phone</th>
                         <th class="th-joined">Joined</th>
                         <th class="th-status">Status</th>
                         @permission('view_users')
@@ -193,17 +186,16 @@
                 <tbody>
                     @foreach($users as $user)
                     <tr class="user-row">
-                        <td data-label="User" class="td-info">
-                            <div class="user-info enhanced-info">
-                                <div class="user-name">{{ $user->name }}</div>
-                                <div class="user-id">ID: {{ $user->id }}</div>
-                            </div>
-                        </td>
-
-                        <td data-label="Email" class="td-email">
-                            <div class="email-display">
-                                <i class="fas fa-envelope"></i>
-                                {{ $user->email }}
+                        <td data-label="Name & Contact" class="td-info">
+                            <div class="member-info enhanced-info">
+                                <div class="member-name">{{ $user->name }}</div>
+                                <div class="member-email">{{ $user->email }}</div>
+                                @if($user->phone)
+                                <div class="member-phone">
+                                    <i class="fas fa-phone"></i>
+                                    {{ $user->phone }}
+                                </div>
+                                @endif
                             </div>
                         </td>
 
@@ -218,25 +210,14 @@
                             @endif
                         </td>
 
-                        <td data-label="Phone" class="td-phone">
-                            @if($user->phone)
-                            <div class="phone-display">
-                                <i class="fas fa-phone"></i>
-                                {{ $user->phone }}
-                            </div>
-                            @else
-                            <span class="no-phone">-</span>
-                            @endif
-                        </td>
-
                         <td data-label="Joined" class="td-joined">
-                            <div class="date-display">
+                            <div class="join-date">
                                 <div class="date-icon">
-                                    <i class="fas fa-calendar-plus"></i>
+                                    <i class="fas fa-calendar-alt"></i>
                                 </div>
                                 <div class="date-text">
-                                    <span class="date-main">{{ $user->created_at->format('M j, Y') }}</span>
-                                    <span class="date-ago">{{ $user->created_at->diffForHumans() }}</span>
+                                    <span class="date-day">{{ $user->created_at->format('M j') }}</span>
+                                    <span class="date-year">{{ $user->created_at->format('Y') }}</span>
                                 </div>
                             </div>
                         </td>
@@ -297,35 +278,13 @@
             </table>
         </div>
 
-        <!-- Enhanced Role Summary Statistics -->
-        <div class="role-summary-section">
-            <div class="summary-header">
-                <h4 class="summary-title">
-                    <i class="fas fa-chart-pie"></i>
-                    Role Distribution Summary
-                </h4>
-            </div>
-            <div class="summary-grid">
-                @foreach($roles as $role)
-                <div class="summary-card">
-                    <div class="summary-icon">
-                        <i class="fas fa-user-tag"></i>
-                    </div>
-                    <div class="summary-content">
-                        <span class="summary-role-name">{{ $role->display_name }}</span>
-                        <span class="summary-role-count">{{ $users->where('role_id', $role->id)->count() }} users</span>
-                        <span class="summary-role-percentage">
-                            {{ $users->total() > 0 ? round(($users->where('role_id', $role->id)->count() / $users->total()) * 100, 1) : 0 }}%
-                        </span>
-                    </div>
-                </div>
-                @endforeach
-            </div>
-        </div>
-
-        <div class="pagination-wrapper enhanced-pagination">
-            {{ $users->links() }}
-        </div>
+        <x-enhanced-pagination
+            :paginator="$users"
+            :show-per-page-selector="true"
+            :per-page-options="[5, 10, 20, 50, 100]"
+            :show-page-info="true"
+            :show-jump-to-page="true"
+            :max-visible-pages="7" />
         @else
         <div class="empty-state enhanced-empty-state">
             <div class="empty-icon">
@@ -350,6 +309,45 @@
         @endif
     </div>
 </div>
+
+<style>
+    /* User Role Badge Styling */
+    .role-admin {
+        background: linear-gradient(135deg, #dc2626, #991b1b);
+        color: white;
+        border: 1px solid #991b1b;
+    }
+
+    .role-user {
+        background: linear-gradient(135deg, #3b82f6, #1e40af);
+        color: white;
+        border: 1px solid #1e40af;
+    }
+
+    .role-admin:hover {
+        background: linear-gradient(135deg, #991b1b, #7f1d1d);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+    }
+
+    .role-user:hover {
+        background: linear-gradient(135deg, #1e40af, #1e3a8a);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    }
+
+    /* Enhanced action buttons for users */
+    .action-btn.user-specific {
+        background: linear-gradient(135deg, #3b82f6, #1e40af);
+        border-color: #1e40af;
+    }
+
+    .action-btn.user-specific:hover {
+        background: linear-gradient(135deg, #1e40af, #1e3a8a);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+    }
+</style>
 
 <script>
     function toggleFilters() {

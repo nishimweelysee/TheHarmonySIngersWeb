@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Concert;
+use App\Services\ConcertExportService;
 use Illuminate\Http\Request;
 
 class ConcertController extends Controller
@@ -34,7 +35,8 @@ class ConcertController extends Controller
             $query->where('venue', $request->venue);
         }
 
-        $concerts = $query->orderBy('date', 'desc')->paginate(20)->withQueryString();
+        $perPage = $request->get('per_page', 10);
+        $concerts = $query->orderBy('date', 'desc')->paginate($perPage)->withQueryString();
 
         return view('admin.concerts.index', compact('concerts'));
     }
@@ -123,5 +125,23 @@ class ConcertController extends Controller
         $concert->delete();
 
         return redirect()->route('admin.concerts.index')->with('success', 'Concert deleted successfully.');
+    }
+
+    /**
+     * Export concerts to Excel
+     */
+    public function exportExcel(Request $request)
+    {
+        $exportService = new ConcertExportService();
+        return $exportService->exportToExcel($request);
+    }
+
+    /**
+     * Export concerts to PDF
+     */
+    public function exportPdf(Request $request)
+    {
+        $exportService = new ConcertExportService();
+        return $exportService->exportToPdf($request);
     }
 }

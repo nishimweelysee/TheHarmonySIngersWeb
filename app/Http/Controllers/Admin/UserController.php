@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Role;
 use App\Models\Permission;
+use App\Services\UserExportService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -47,7 +48,8 @@ class UserController extends Controller
             });
         }
 
-        $users = $query->orderBy('name', 'asc')->paginate(20)->withQueryString();
+        $perPage = $request->get('per_page', 10);
+        $users = $query->orderBy('name', 'asc')->paginate($perPage)->withQueryString();
         $roles = Role::active()->orderBy('display_name', 'asc')->get();
 
         return view('admin.users.index', compact('users', 'roles'));
@@ -169,5 +171,23 @@ class UserController extends Controller
 
         return redirect()->route('admin.users.index')
             ->with('success', 'User role updated successfully.');
+    }
+
+    /**
+     * Export users to Excel
+     */
+    public function exportExcel(Request $request)
+    {
+        $exportService = new UserExportService();
+        return $exportService->exportToExcel($request);
+    }
+
+    /**
+     * Export users to PDF
+     */
+    public function exportPdf(Request $request)
+    {
+        $exportService = new UserExportService();
+        return $exportService->exportToPdf($request);
     }
 }

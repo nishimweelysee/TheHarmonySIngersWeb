@@ -4,9 +4,9 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\ContributionCampaign;
-use App\Models\IndividualContribution;
-use App\Models\Plan;
+use App\Services\ContributionCampaignExportService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Notification;
 
 class ContributionCampaignController extends Controller
 {
@@ -15,35 +15,57 @@ class ContributionCampaignController extends Controller
      */
     public function index(Request $request)
     {
-        $query = ContributionCampaign::with(['yearPlan', 'individualContributions']);
+        $query = ContributionCampaign::query()->with(["yearPlan", "individualContributions"]);
 
-        // Filter by type
-        if ($request->filled('type')) {
-            $query->where('type', strtolower($request->type));
-        }
-
-        // Filter by status
-        if ($request->filled('status')) {
-            $query->where('status', strtolower($request->status));
-        }
-
-        // Search by name or description
+        // Apply filters based on request
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('description', 'like', "%{$search}%");
+                $q->where('name', 'like', '%' . $search . '%')
+                    ->orWhere('description', 'like', '%' . $search . '%');
             });
         }
 
-        $campaigns = $query->latest()->paginate(20)->withQueryString();
+        $perPage = $request->get('per_page', 10);
+        $contributionCampaigns = $query->paginate($perPage);
 
-        // Update current amounts for all campaigns
-        foreach ($campaigns as $campaign) {
-            $campaign->updateCurrentAmount();
-        }
+        return view('admin.contribution-campaigns.index', compact('contributionCampaigns'));
+    }
 
-        return view('admin.contribution-campaigns.index', compact('campaigns'));
+    /**
+     * Export to Excel
+     */
+    public function exportExcel(Request $request)
+    {
+        $exportService = new ContributionCampaignExportService();
+        return $exportService->exportToExcel($request);
+    }
+
+    /**
+     * Export to PDF
+     */
+    public function exportPdf(Request $request)
+    {
+        $exportService = new ContributionCampaignExportService();
+        return $exportService->exportToPdf($request);
+    }
+
+    /**
+     * Export contributors to Excel
+     */
+    public function exportContributorsExcel(ContributionCampaign $contributionCampaign)
+    {
+        $exportService = new ContributionCampaignExportService();
+        return $exportService->exportContributorsToExcel($contributionCampaign);
+    }
+
+    /**
+     * Export contributors to PDF
+     */
+    public function exportContributorsPdf(ContributionCampaign $contributionCampaign)
+    {
+        $exportService = new ContributionCampaignExportService();
+        return $exportService->exportContributorsToPdf($contributionCampaign);
     }
 
     /**
@@ -51,7 +73,7 @@ class ContributionCampaignController extends Controller
      */
     public function create()
     {
-        $yearPlans = Plan::currentYear()->orderBy('quarter')->get();
+        $yearPlans = \App\Models\Plan::all();
         return view('admin.contribution-campaigns.create', compact('yearPlans'));
     }
 
@@ -63,27 +85,16 @@ class ContributionCampaignController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'type' => 'required|in:monthly,project,event,special',
-            'year_plan_id' => 'nullable|exists:plans,id',
+            'year_plan_id' => 'required|exists:plans,id',
             'start_date' => 'required|date',
             'end_date' => 'required|date|after:start_date',
-            'target_amount' => 'nullable|numeric|min:0.01',
-            'min_amount_per_person' => 'nullable|numeric|min:0.01',
-            'currency' => 'nullable|string|max:3',
-            'campaign_notes' => 'nullable|string',
+            'target_amount' => 'required|numeric|min:0',
+            'status' => 'required|string|in:active,inactive,completed',
         ]);
 
-        // Set default currency if not provided
-        if (empty($validated['currency'])) {
-            $validated['currency'] = 'RWF';
-        }
+        $contributionCampaign = ContributionCampaign::create($validated);
 
-        $validated['current_amount'] = 0;
-        $validated['status'] = 'active';
-
-        ContributionCampaign::create($validated);
-
-        return redirect()->route('admin.contribution-campaigns.index')
+        return redirect()->route('admin.contribution-campaigns.show', $contributionCampaign)
             ->with('success', 'Contribution campaign created successfully.');
     }
 
@@ -92,13 +103,7 @@ class ContributionCampaignController extends Controller
      */
     public function show(ContributionCampaign $contributionCampaign)
     {
-        // Update current amount before displaying
-        $contributionCampaign->updateCurrentAmount();
-
-        $contributionCampaign->load(['yearPlan', 'individualContributions' => function ($query) {
-            $query->latest();
-        }]);
-
+        $contributionCampaign->load(['yearPlan', 'individualContributions']);
         return view('admin.contribution-campaigns.show', compact('contributionCampaign'));
     }
 
@@ -107,8 +112,7 @@ class ContributionCampaignController extends Controller
      */
     public function edit(ContributionCampaign $contributionCampaign)
     {
-        $yearPlans = Plan::currentYear()->orderBy('quarter')->get();
-        return view('admin.contribution-campaigns.edit', compact('contributionCampaign', 'yearPlans'));
+        return view('admin.contribution-campaigns.edit', compact('contributionCampaign'));
     }
 
     /**
@@ -119,20 +123,16 @@ class ContributionCampaignController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'type' => 'required|in:monthly,project,event,special',
-            'year_plan_id' => 'nullable|exists:plans,id',
+            'year_plan_id' => 'required|exists:plans,id',
             'start_date' => 'required|date',
             'end_date' => 'required|date|after:start_date',
-            'target_amount' => 'nullable|numeric|min:0.01',
-            'min_amount_per_person' => 'nullable|numeric|min:0.01',
-            'currency' => 'nullable|string|max:3',
-            'status' => 'required|in:active,completed,cancelled',
-            'campaign_notes' => 'nullable|string',
+            'target_amount' => 'required|numeric|min:0',
+            'status' => 'required|string|in:active,inactive,completed',
         ]);
 
         $contributionCampaign->update($validated);
 
-        return redirect()->route('admin.contribution-campaigns.index')
+        return redirect()->route('admin.contribution-campaigns.show', $contributionCampaign)
             ->with('success', 'Contribution campaign updated successfully.');
     }
 
@@ -141,12 +141,6 @@ class ContributionCampaignController extends Controller
      */
     public function destroy(ContributionCampaign $contributionCampaign)
     {
-        // Check if campaign has contributions
-        if ($contributionCampaign->individualContributions()->count() > 0) {
-            return redirect()->route('admin.contribution-campaigns.index')
-                ->with('error', 'Cannot delete campaign with existing contributions. Please delete contributions first.');
-        }
-
         $contributionCampaign->delete();
 
         return redirect()->route('admin.contribution-campaigns.index')
@@ -154,117 +148,131 @@ class ContributionCampaignController extends Controller
     }
 
     /**
-     * Show the form for adding a new contribution
+     * Show the form for adding a contribution to the campaign.
      */
     public function showAddContributionForm(ContributionCampaign $contributionCampaign)
     {
-        $members = \App\Models\Member::orderBy('first_name')->orderBy('last_name')->get();
+        $contributionCampaign->load(['yearPlan']);
+        $members = \App\Models\Member::active()->get();
         return view('admin.contribution-campaigns.add-contribution', compact('contributionCampaign', 'members'));
     }
 
     /**
-     * Add individual contribution to campaign
+     * Add a contribution to the campaign.
      */
     public function addContribution(Request $request, ContributionCampaign $contributionCampaign)
     {
         $validated = $request->validate([
+            'member_id' => 'nullable|exists:members,id',
             'contributor_name' => 'required|string|max:255',
             'contributor_email' => 'nullable|email|max:255',
             'contributor_phone' => 'nullable|string|max:20',
-            'amount' => 'required|numeric|min:0.01',
-            'currency' => 'nullable|string|max:3',
+            'amount' => 'required|numeric|min:0',
+            'currency' => 'required|string|in:RWF,USD,EUR,GBP,CAD,AUD',
             'contribution_date' => 'required|date',
-            'payment_method' => 'required|in:cash,bank_transfer,check,mobile_money,other',
+            'payment_method' => 'required|string|in:cash,bank_transfer,check,mobile_money,other',
             'reference_number' => 'nullable|string|max:255',
-            'status' => 'required|in:pending,confirmed,completed',
+            'status' => 'required|string|in:pending,confirmed,completed',
             'notes' => 'nullable|string',
         ]);
 
-        $validated['campaign_id'] = $contributionCampaign->id;
-        $validated['currency'] = $validated['currency'] ?? $contributionCampaign->currency;
-
-        // Check if contribution meets minimum amount
-        if (!$contributionCampaign->meetsMinimumAmount($validated['amount'])) {
-            return back()->withErrors([
-                'amount' => "Contribution amount must be at least {$contributionCampaign->minimum_amount_formatted} for this campaign."
-            ])->withInput();
+        // If member_id is provided, get member details
+        if ($validated['member_id']) {
+            $member = \App\Models\Member::find($validated['member_id']);
+            $validated['contributor_name'] = $member->full_name;
+            $validated['contributor_email'] = $member->email;
+            $validated['contributor_phone'] = $member->phone;
         }
 
-        IndividualContribution::create($validated);
+        // Remove member_id from the data to be saved (it's not in the database schema)
+        unset($validated['member_id']);
 
-        // Update campaign current amount
-        $contributionCampaign->updateCurrentAmount();
+        $contribution = $contributionCampaign->individualContributions()->create($validated);
+
+        // Send notification if contribution is added with confirmed or completed status
+        if (($validated['status'] === 'confirmed' || $validated['status'] === 'completed') &&
+            $contribution->contributor_email
+        ) {
+
+            // Send notification using route method for email
+            Notification::route('mail', $contribution->contributor_email)
+                ->notify(new \App\Notifications\ContributionConfirmedNotification($contribution, $contributionCampaign));
+        }
 
         return redirect()->route('admin.contribution-campaigns.show', $contributionCampaign)
             ->with('success', 'Contribution added successfully.');
     }
 
     /**
-     * Show the form for editing an individual contribution
+     * Show the form for editing a contribution.
      */
-    public function editContribution(ContributionCampaign $contributionCampaign, IndividualContribution $contribution)
+    public function editContribution(ContributionCampaign $contributionCampaign, $contribution)
     {
-        if ($contribution->campaign_id !== $contributionCampaign->id) {
-            abort(404);
-        }
-
-        $members = \App\Models\Member::orderBy('first_name')->orderBy('last_name')->get();
+        $contribution = $contributionCampaign->individualContributions()->findOrFail($contribution);
+        $members = \App\Models\Member::active()->get();
         return view('admin.contribution-campaigns.edit-contribution', compact('contributionCampaign', 'contribution', 'members'));
     }
 
     /**
-     * Update an individual contribution
+     * Update a contribution.
      */
-    public function updateContribution(Request $request, ContributionCampaign $contributionCampaign, IndividualContribution $contribution)
+    public function updateContribution(Request $request, ContributionCampaign $contributionCampaign, $contribution)
     {
-        if ($contribution->campaign_id !== $contributionCampaign->id) {
-            abort(404);
-        }
+        $contribution = $contributionCampaign->individualContributions()->findOrFail($contribution);
 
         $validated = $request->validate([
+            'member_id' => 'nullable|exists:members,id',
             'contributor_name' => 'required|string|max:255',
             'contributor_email' => 'nullable|email|max:255',
             'contributor_phone' => 'nullable|string|max:20',
-            'amount' => 'required|numeric|min:0.01',
-            'currency' => 'nullable|string|max:3',
+            'amount' => 'required|numeric|min:0',
+            'currency' => 'required|string|in:RWF,USD,EUR,GBP,CAD,AUD',
             'contribution_date' => 'required|date',
-            'payment_method' => 'required|in:cash,bank_transfer,check,mobile_money,other',
+            'payment_method' => 'required|string|in:cash,bank_transfer,check,mobile_money,other',
             'reference_number' => 'nullable|string|max:255',
-            'status' => 'required|in:pending,confirmed,completed',
+            'status' => 'required|string|in:pending,confirmed,completed',
             'notes' => 'nullable|string',
         ]);
 
-        $validated['currency'] = $validated['currency'] ?? $contributionCampaign->currency;
-
-        // Check if contribution meets minimum amount
-        if (!$contributionCampaign->meetsMinimumAmount($validated['amount'])) {
-            return back()->withErrors([
-                'amount' => "Contribution amount must be at least {$contributionCampaign->minimum_amount_formatted} for this campaign."
-            ])->withInput();
+        // If member_id is provided, get member details
+        if ($validated['member_id']) {
+            $member = \App\Models\Member::find($validated['member_id']);
+            $validated['contributor_name'] = $member->full_name;
+            $validated['contributor_email'] = $member->email;
+            $validated['contributor_phone'] = $member->phone;
         }
+
+        // Remove member_id from the data to be saved (it's not in the database schema)
+        unset($validated['member_id']);
+
+        // Store the old status to check if we need to send notification
+        $oldStatus = $contribution->status;
+        $newStatus = $validated['status'];
 
         $contribution->update($validated);
 
-        // Update campaign current amount
-        $contributionCampaign->updateCurrentAmount();
+        // Send notification if status changed to confirmed or completed
+        if (($newStatus === 'confirmed' || $newStatus === 'completed') &&
+            $oldStatus !== $newStatus &&
+            $contribution->contributor_email
+        ) {
+
+            // Send notification using route method for email
+            Notification::route('mail', $contribution->contributor_email)
+                ->notify(new \App\Notifications\ContributionConfirmedNotification($contribution, $contributionCampaign));
+        }
 
         return redirect()->route('admin.contribution-campaigns.show', $contributionCampaign)
             ->with('success', 'Contribution updated successfully.');
     }
 
     /**
-     * Remove individual contribution from campaign
+     * Remove a contribution from the campaign.
      */
-    public function removeContribution(ContributionCampaign $contributionCampaign, IndividualContribution $contribution)
+    public function removeContribution(ContributionCampaign $contributionCampaign, $contribution)
     {
-        if ($contribution->campaign_id !== $contributionCampaign->id) {
-            abort(404);
-        }
-
+        $contribution = $contributionCampaign->individualContributions()->findOrFail($contribution);
         $contribution->delete();
-
-        // Update campaign current amount
-        $contributionCampaign->updateCurrentAmount();
 
         return redirect()->route('admin.contribution-campaigns.show', $contributionCampaign)
             ->with('success', 'Contribution removed successfully.');

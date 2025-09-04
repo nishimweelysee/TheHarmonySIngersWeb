@@ -183,7 +183,7 @@
                 </div>
 
                 <div class="progress-bar enhanced-progress">
-                    <div class="progress-fill" style="width: {{ min($percentage, 100) }}%"></div>
+                    <div class="progress-fill" data-width="{{ min($percentage, 100) }}"></div>
                 </div>
 
                 <div class="progress-amounts">
@@ -202,7 +202,7 @@
     @endif
 
     <!-- Contributions List Card -->
-    <div class="campaign-card enhanced-card">
+    <div class="campaign-card enhanced-card full-width-card">
         <div class="card-header enhanced-header">
             <h3 class="card-title">
                 <i class="fas fa-hand-holding-usd"></i>
@@ -214,6 +214,20 @@
                     <div class="btn-content">
                         <i class="fas fa-plus"></i>
                         <span>Add Contribution</span>
+                    </div>
+                </a>
+                @endpermission
+                @permission('view_contribution_campaigns')
+                <a href="{{ route('admin.contribution-campaigns.export-contributors.excel', $contributionCampaign) }}" class="btn btn-success enhanced-btn btn-sm">
+                    <div class="btn-content">
+                        <i class="fas fa-file-excel"></i>
+                        <span>Export Excel</span>
+                    </div>
+                </a>
+                <a href="{{ route('admin.contribution-campaigns.export-contributors.pdf', $contributionCampaign) }}" class="btn btn-danger enhanced-btn btn-sm">
+                    <div class="btn-content">
+                        <i class="fas fa-file-pdf"></i>
+                        <span>Export PDF</span>
                     </div>
                 </a>
                 @endpermission
@@ -304,10 +318,26 @@
 
 @endsection
 
+
+
 @push('scripts')
 <script>
     // Initialize progress bars and enhance UI
     document.addEventListener('DOMContentLoaded', function() {
+        // Initialize progress bars
+        const progressBars = document.querySelectorAll('.progress-fill');
+        progressBars.forEach(function(bar) {
+            const width = bar.getAttribute('data-width');
+            if (width) {
+                // Set CSS custom property for the width
+                bar.style.setProperty('--progress-width', width + '%');
+                // Add animated class to trigger the animation
+                setTimeout(function() {
+                    bar.classList.add('animated');
+                }, 200);
+            }
+        });
+
         // Add hover effects to contribution rows
         const contributionRows = document.querySelectorAll('.contribution-row');
         contributionRows.forEach(function(row) {
@@ -320,14 +350,6 @@
                 this.style.transform = 'translateY(0)';
                 this.style.boxShadow = 'none';
             });
-        });
-
-        // Add smooth transitions to progress bars
-        const progressFills = document.querySelectorAll('.progress-fill');
-        progressFills.forEach(function(fill) {
-            setTimeout(function() {
-                fill.style.transition = 'width 1s ease-in-out';
-            }, 100);
         });
     });
 </script>

@@ -46,6 +46,29 @@
                 <div class="btn-glow"></div>
             </a>
             @endpermission
+
+            <!-- Export Actions -->
+            <div class="export-actions">
+                <a href="{{ route('admin.songs.export.excel', request()->query()) }}"
+                    class="btn btn-success enhanced-btn"
+                    title="Export to Excel">
+                    <div class="btn-content">
+                        <i class="fas fa-file-excel"></i>
+                        <span>Excel</span>
+                    </div>
+                    <div class="btn-glow"></div>
+                </a>
+
+                <a href="{{ route('admin.songs.export.pdf', request()->query()) }}"
+                    class="btn btn-danger enhanced-btn"
+                    title="Export to PDF">
+                    <div class="btn-content">
+                        <i class="fas fa-file-pdf"></i>
+                        <span>PDF</span>
+                    </div>
+                    <div class="btn-glow"></div>
+                </a>
+            </div>
         </div>
     </div>
 </div>
@@ -159,7 +182,7 @@
 
     <div class="card-content">
         @if($songs->count() > 0)
-        <div class="table-container enhanced-table">
+        <div class="table-container">
             <table class="data-table enhanced-table">
                 <thead>
                     <tr>
@@ -328,9 +351,13 @@
             </table>
         </div>
 
-        <div class="pagination-wrapper enhanced-pagination">
-            {{ $songs->links() }}
-        </div>
+        <x-enhanced-pagination
+            :paginator="$songs"
+            :show-per-page-selector="true"
+            :per-page-options="[5, 10, 20, 50, 100]"
+            :show-page-info="true"
+            :show-jump-to-page="true"
+            :max-visible-pages="7" />
         @else
         <div class="empty-state enhanced-empty-state">
             <div class="empty-icon">

@@ -117,13 +117,11 @@
                             <select id="category" name="category" class="form-select enhanced-select">
                                 <option value="">Select Category</option>
                                 <option value="performance" {{ old('category', $plan->category) == 'performance' ? 'selected' : '' }}>Performance</option>
-                                <option value="rehearsal" {{ old('category', $plan->category) == 'rehearsal' ? 'selected' : '' }}>Rehearsal</option>
-                                <option value="competition" {{ old('category', $plan->category) == 'competition' ? 'selected' : '' }}>Competition</option>
-                                <option value="recording" {{ old('category', $plan->category) == 'recording' ? 'selected' : '' }}>Recording</option>
+                                <option value="training" {{ old('category', $plan->category) == 'training' ? 'selected' : '' }}>Training</option>
                                 <option value="workshop" {{ old('category', $plan->category) == 'workshop' ? 'selected' : '' }}>Workshop</option>
-                                <option value="tour" {{ old('category', $plan->category) == 'tour' ? 'selected' : '' }}>Tour</option>
                                 <option value="fundraising" {{ old('category', $plan->category) == 'fundraising' ? 'selected' : '' }}>Fundraising</option>
-                                <option value="other" {{ old('category', $plan->category) == 'other' ? 'selected' : '' }}>Other</option>
+                                <option value="community" {{ old('category', $plan->category) == 'community' ? 'selected' : '' }}>Community</option>
+                                <option value="administration" {{ old('category', $plan->category) == 'administration' ? 'selected' : '' }}>Administration</option>
                             </select>
                             <div class="select-glow"></div>
                             @error('category')
@@ -300,8 +298,8 @@
                             </label>
                             <select id="status" name="status" class="form-select enhanced-select" required>
                                 <option value="">Select Status</option>
-                                <option value="planned" {{ old('status', $plan->status) == 'planned' ? 'selected' : '' }}>Planned</option>
-                                <option value="in_progress" {{ old('status', $plan->status) == 'in_progress' ? 'selected' : '' }}>In Progress</option>
+                                <option value="draft" {{ old('status', $plan->status) == 'draft' ? 'selected' : '' }}>Draft</option>
+                                <option value="active" {{ old('status', $plan->status) == 'active' ? 'selected' : '' }}>Active</option>
                                 <option value="completed" {{ old('status', $plan->status) == 'completed' ? 'selected' : '' }}>Completed</option>
                                 <option value="cancelled" {{ old('status', $plan->status) == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
                             </select>

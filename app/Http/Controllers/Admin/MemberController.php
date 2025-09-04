@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Member;
 use App\Notifications\MemberRegisteredNotification;
+use App\Services\MemberExportService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -47,7 +48,8 @@ class MemberController extends Controller
             });
         }
 
-        $members = $query->orderBy('last_name', 'asc')->paginate(20)->withQueryString();
+        $perPage = $request->get('per_page', 10);
+        $members = $query->orderBy('last_name', 'asc')->paginate($perPage)->withQueryString();
 
         return view('admin.members.index', compact('members'));
     }
@@ -270,5 +272,23 @@ class MemberController extends Controller
                 'sent_at' => now()
             ]);
         }
+    }
+
+    /**
+     * Export members to Excel
+     */
+    public function exportExcel(Request $request)
+    {
+        $exportService = new MemberExportService();
+        return $exportService->exportToExcel($request);
+    }
+
+    /**
+     * Export members to PDF
+     */
+    public function exportPdf(Request $request)
+    {
+        $exportService = new MemberExportService();
+        return $exportService->exportToPdf($request);
     }
 }

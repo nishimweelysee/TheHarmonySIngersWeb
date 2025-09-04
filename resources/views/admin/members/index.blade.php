@@ -2,6 +2,7 @@
 
 @section('title', 'Members')
 @section('page-title', 'Manage Members')
+@section('page-icon', 'users')
 
 @section('content')
 
@@ -46,6 +47,29 @@
                 <div class="btn-glow"></div>
             </a>
             @endpermission
+
+            <!-- Export Actions -->
+            <div class="export-actions">
+                <a href="{{ route('admin.members.export.excel', request()->query()) }}"
+                    class="btn btn-success enhanced-btn"
+                    title="Export to Excel">
+                    <div class="btn-content">
+                        <i class="fas fa-file-excel"></i>
+                        <span>Excel</span>
+                    </div>
+                    <div class="btn-glow"></div>
+                </a>
+
+                <a href="{{ route('admin.members.export.pdf', request()->query()) }}"
+                    class="btn btn-danger enhanced-btn"
+                    title="Export to PDF">
+                    <div class="btn-content">
+                        <i class="fas fa-file-pdf"></i>
+                        <span>PDF</span>
+                    </div>
+                    <div class="btn-glow"></div>
+                </a>
+            </div>
         </div>
     </div>
 </div>
@@ -142,7 +166,7 @@
 
     <div class="card-content">
         @if($members->count() > 0)
-        <div class="table-container enhanced-table">
+        <div class="table-container">
             <table class="data-table enhanced-table">
                 <thead>
                     <tr>
@@ -188,10 +212,17 @@
                         </td>
 
                         <td data-label="Type" class="td-type">
-                            <span class="type-badge enhanced-badge type-{{ $member->type }}">
-                                <i class="fas fa-{{ $member->type === 'singer' ? 'microphone' : 'user' }}"></i>
-                                {{ ucfirst($member->type) }}
+                            @if($member->type === 'singer')
+                            <span class="type-badge enhanced-badge singer-badge">
+                                <i class="fas fa-music"></i>
+                                Singer
                             </span>
+                            @else
+                            <span class="type-badge enhanced-badge general-badge">
+                                <i class="fas fa-user-friends"></i>
+                                General Member
+                            </span>
+                            @endif
                         </td>
 
                         <td data-label="Voice Part" class="td-voice">
@@ -251,6 +282,16 @@
                                 </a>
                                 @endpermission
 
+                                @if($member->type === 'singer')
+                                @permission('view_practice_sessions')
+                                <a href="{{ route('admin.practice-sessions.index', ['member' => $member->id]) }}"
+                                    class="btn btn-sm btn-success action-btn" title="Practice Attendance">
+                                    <i class="fas fa-calendar-check"></i>
+                                    <span class="btn-tooltip">Attendance</span>
+                                </a>
+                                @endpermission
+                                @endif
+
                                 @permission('delete_members')
                                 <form method="POST" action="{{ route('admin.members.destroy', $member) }}"
                                     class="inline delete-form">
@@ -273,9 +314,13 @@
             </table>
         </div>
 
-        <div class="pagination-wrapper enhanced-pagination">
-            {{ $members->links() }}
-        </div>
+        <x-enhanced-pagination
+            :paginator="$members"
+            :show-per-page-selector="true"
+            :per-page-options="[5, 10, 20, 50, 100]"
+            :show-page-info="true"
+            :show-jump-to-page="true"
+            :max-visible-pages="7" />
         @else
         <div class="empty-state enhanced-empty-state">
             <div class="empty-icon">
@@ -300,6 +345,45 @@
         @endif
     </div>
 </div>
+
+<style>
+    /* Member Type Badge Styling */
+    .singer-badge {
+        background: linear-gradient(135deg, #3b82f6, #1e40af);
+        color: white;
+        border: 1px solid #1e40af;
+    }
+
+    .general-badge {
+        background: linear-gradient(135deg, #10b981, #065f46);
+        color: white;
+        border: 1px solid #065f46;
+    }
+
+    .singer-badge:hover {
+        background: linear-gradient(135deg, #1e40af, #1e3a8a);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    }
+
+    .general-badge:hover {
+        background: linear-gradient(135deg, #065f46, #064e3b);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    }
+
+    /* Enhanced action buttons for singers */
+    .action-btn.singer-specific {
+        background: linear-gradient(135deg, #3b82f6, #1e40af);
+        border-color: #1e40af;
+    }
+
+    .action-btn.singer-specific:hover {
+        background: linear-gradient(135deg, #1e40af, #1e3a8a);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+    }
+</style>
 
 <script>
     function toggleFilters() {

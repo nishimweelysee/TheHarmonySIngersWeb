@@ -126,7 +126,8 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        height: 4rem;
+        height: 5rem;
+        min-height: 5rem;
     }
 
     .navbar-brand {
@@ -136,7 +137,6 @@
         text-decoration: none;
         display: flex;
         align-items: center;
-        gap: var(--space-3);
         transition: var(--transition);
     }
 
@@ -147,18 +147,39 @@
     }
 
     .navbar-logo {
-        flex-shrink: 0;
+        height: 50px;
+        width: auto;
+        max-width: 300px;
         transition: var(--transition);
+        flex-shrink: 0;
     }
 
     .navbar-brand:hover .navbar-logo {
-        transform: scale(1.05);
+        transform: scale(1.02);
     }
 
     .brand-text {
-        font-weight: 800;
-        font-size: 1.5rem;
-        color: var(--primary);
+        display: none;
+    }
+
+    /* Responsive logo sizing */
+    @media (max-width: 768px) {
+        .navbar-logo {
+            height: 40px;
+            max-width: 250px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .navbar-container {
+            height: 4rem;
+            min-height: 4rem;
+        }
+
+        .navbar-logo {
+            height: 35px;
+            max-width: 200px;
+        }
     }
 
     .navbar-nav {
@@ -171,7 +192,7 @@
         font-weight: 500;
         color: var(--gray-600);
         text-decoration: none;
-        padding: var(--space-2) var(--space-4);
+        padding: var(--space-2) var(--space-2);
         border-radius: var(--radius);
         transition: var(--transition);
         position: relative;
@@ -512,6 +533,11 @@
 
     /* Responsive Design */
     @media (max-width: 768px) {
+        .navbar-container {
+            height: 4.5rem;
+            min-height: 4.5rem;
+        }
+
         .navbar-nav {
             display: none;
         }
@@ -615,40 +641,7 @@
         <div class="navbar-container">
             <!-- Logo -->
             <a href="{{ route('home') }}" class="navbar-brand">
-                <svg width="40" height="40" viewBox="0 0 120 120" class="navbar-logo">
-                    <defs>
-                        <linearGradient id="navbarGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" style="stop-color:#1e3a8a;stop-opacity:1" />
-                            <stop offset="50%" style="stop-color:#1e40af;stop-opacity:1" />
-                            <stop offset="100%" style="stop-color:#3b82f6;stop-opacity:1" />
-                        </linearGradient>
-                    </defs>
-
-                    <!-- Main circular background -->
-                    <circle cx="60" cy="60" r="55" fill="url(#navbarGradient)" />
-
-                    <!-- Inner circle for depth -->
-                    <circle cx="60" cy="60" r="45" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1" />
-
-                    <!-- THS Text with modern typography -->
-                    <text x="60" y="70" font-family="'Segoe UI', Arial, sans-serif" font-size="28" font-weight="900"
-                        text-anchor="middle" fill="white" letter-spacing="2">
-                        THS
-                    </text>
-
-                    <!-- Modern music note -->
-                    <g fill="white" opacity="0.95">
-                        <ellipse cx="60" cy="85" rx="2.5" ry="2" />
-                        <line x1="60" y1="85" x2="60" y2="95" stroke="white" stroke-width="2" stroke-linecap="round" />
-                    </g>
-
-                    <!-- Decorative corner elements -->
-                    <circle cx="60" cy="15" r="1.5" fill="rgba(255,255,255,0.6)" opacity="0.8" />
-                    <circle cx="60" cy="105" r="1.5" fill="rgba(255,255,255,0.6)" opacity="0.8" />
-                    <circle cx="15" cy="60" r="1.5" fill="rgba(255,255,255,0.6)" opacity="0.8" />
-                    <circle cx="105" cy="60" r="1.5" fill="rgba(255,255,255,0.6)" opacity="0.8" />
-                </svg>
-                <span class="brand-text">The Harmony Singers</span>
+                <img src="{{ asset('ths-logo-horizontal.svg') }}" alt="The Harmony Singers" class="navbar-logo">
             </a>
 
             <!-- Desktop Navigation -->
@@ -667,6 +660,10 @@
                 <a href="{{ route('contact.index') }}"
                     class="nav-link {{ request()->routeIs('contact.*') ? 'active' : '' }}">
                     Contact
+                </a>
+                <a href="{{ route('public.member-register') }}"
+                    class="nav-link {{ request()->routeIs('public.member-register*') ? 'active' : '' }}">
+                    Join Us
                 </a>
                 @auth
                 <a href="{{ route('admin.dashboard') }}" class="nav-link">
@@ -724,6 +721,10 @@
             <a href="{{ route('contact.index') }}"
                 class="mobile-nav-link {{ request()->routeIs('contact.*') ? 'active' : '' }}">
                 Contact
+            </a>
+            <a href="{{ route('public.member-register') }}"
+                class="mobile-nav-link {{ request()->routeIs('public.member-register*') ? 'active' : '' }}">
+                Join Us
             </a>
             @auth
             <a href="{{ route('admin.dashboard') }}" class="mobile-nav-link">

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Sponsor;
+use App\Services\SponsorExportService;
 use Illuminate\Http\Request;
 
 class SponsorController extends Controller
@@ -15,27 +16,37 @@ class SponsorController extends Controller
     {
         $query = Sponsor::query();
 
-        // Filter by type
-        if ($request->filled('type')) {
-            $query->where('type', strtolower($request->type));
-        }
-
-        // Filter by status
-        if ($request->filled('status')) {
-            $query->where('status', strtolower($request->status));
-        }
-
-        // Search by name or description
+        // Apply filters based on request
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('description', 'like', "%{$search}%");
+                $q->where('name', 'like', '%' . $search . '%')
+                    ->orWhere('description', 'like', '%' . $search . '%');
             });
         }
 
-        $sponsors = $query->latest()->paginate(20)->withQueryString();
+        $perPage = $request->get('per_page', 10);
+        $sponsors = $query->paginate($perPage);
+
         return view('admin.sponsors.index', compact('sponsors'));
+    }
+
+    /**
+     * Export to Excel
+     */
+    public function exportExcel(Request $request)
+    {
+        $exportService = new SponsorExportService();
+        return $exportService->exportToExcel($request);
+    }
+
+    /**
+     * Export to PDF
+     */
+    public function exportPdf(Request $request)
+    {
+        $exportService = new SponsorExportService();
+        return $exportService->exportToPdf($request);
     }
 
     /**
@@ -53,24 +64,22 @@ class SponsorController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'type' => 'required|in:corporate,individual,foundation,government',
-            'category' => 'nullable|string|max:255',
+            'description' => 'nullable|string',
             'contact_person' => 'nullable|string|max:255',
-            'contact_email' => 'nullable|email|max:255',
-            'contact_phone' => 'nullable|string|max:20',
+            'email' => 'nullable|email|max:255',
+            'phone' => 'nullable|string|max:20',
             'website' => 'nullable|url|max:255',
-            'address' => 'nullable|string',
-            'sponsorship_level' => 'nullable|in:platinum,gold,silver,bronze,patron',
-            'partnership_start_date' => 'nullable|date',
-            'partnership_end_date' => 'nullable|date|after:partnership_start_date',
-            'annual_contribution' => 'nullable|numeric|min:0',
-            'status' => 'required|in:active,inactive,pending',
-            'notes' => 'nullable|string',
+            'sponsorship_type' => 'required|string|in:financial,in_kind,services,other',
+            'sponsorship_amount' => 'nullable|numeric|min:0',
+            'start_date' => 'required|date',
+            'end_date' => 'nullable|date|after:start_date',
+            'status' => 'required|string|in:active,inactive,expired',
         ]);
 
-        Sponsor::create($validated);
+        $sponsor = Sponsor::create($validated);
 
-        return redirect()->route('admin.sponsors.index')->with('success', 'Sponsor added successfully.');
+        return redirect()->route('admin.sponsors.show', $sponsor)
+            ->with('success', 'Sponsor created successfully.');
     }
 
     /**
@@ -96,24 +105,22 @@ class SponsorController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'type' => 'required|in:corporate,individual,foundation,government',
-            'category' => 'nullable|string|max:255',
+            'description' => 'nullable|string',
             'contact_person' => 'nullable|string|max:255',
-            'contact_email' => 'nullable|email|max:255',
-            'contact_phone' => 'nullable|string|max:20',
+            'email' => 'nullable|email|max:255',
+            'phone' => 'nullable|string|max:20',
             'website' => 'nullable|url|max:255',
-            'address' => 'nullable|string',
-            'sponsorship_level' => 'nullable|in:platinum,gold,silver,bronze,patron',
-            'partnership_start_date' => 'nullable|date',
-            'partnership_end_date' => 'nullable|date|after:partnership_start_date',
-            'annual_contribution' => 'nullable|numeric|min:0',
-            'status' => 'required|in:active,inactive,pending',
-            'notes' => 'nullable|string',
+            'sponsorship_type' => 'required|string|in:financial,in_kind,services,other',
+            'sponsorship_amount' => 'nullable|numeric|min:0',
+            'start_date' => 'required|date',
+            'end_date' => 'nullable|date|after:start_date',
+            'status' => 'required|string|in:active,inactive,expired',
         ]);
 
         $sponsor->update($validated);
 
-        return redirect()->route('admin.sponsors.index')->with('success', 'Sponsor updated successfully.');
+        return redirect()->route('admin.sponsors.show', $sponsor)
+            ->with('success', 'Sponsor updated successfully.');
     }
 
     /**
@@ -123,6 +130,7 @@ class SponsorController extends Controller
     {
         $sponsor->delete();
 
-        return redirect()->route('admin.sponsors.index')->with('success', 'Sponsor deleted successfully.');
+        return redirect()->route('admin.sponsors.index')
+            ->with('success', 'Sponsor deleted successfully.');
     }
 }

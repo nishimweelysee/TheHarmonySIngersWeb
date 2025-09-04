@@ -5,10 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Notifications\Notifiable;
+use App\Traits\Auditable;
 
 class Member extends Model
 {
-    use Notifiable;
+    use Notifiable, Auditable;
     protected $fillable = [
         'first_name',
         'last_name',

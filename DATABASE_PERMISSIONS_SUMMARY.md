@@ -173,7 +173,7 @@ php artisan tinker --execute="App\Models\Permission::select('module', \DB::raw('
 php artisan tinker --execute="App\Models\Role::with('permissions')->get()->each(function(\$role) { echo \$role->display_name . ': ' . \$role->permissions->count() . ' permissions' . PHP_EOL; });"
 
 # Check admin user permissions
-php artisan tinker --execute="\$admin = App\Models\User::where('email', 'admin@harmonysingers.com')->first(); echo 'Admin permissions: ' . \$admin->role->permissions->count();"
+php artisan tinker --execute="\$admin = App\Models\User::where('email', 'theharmonysingerschoir@gmail.com')->first(); echo 'Admin permissions: ' . \$admin->role->permissions->count();"
 ```
 
 ---

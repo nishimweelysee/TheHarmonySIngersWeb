@@ -8,11 +8,12 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Traits\Auditable;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, Auditable;
 
     /**
      * The attributes that are mass assignable.
@@ -78,6 +79,14 @@ class User extends Authenticatable implements MustVerifyEmail
         }
 
         return $this->role->hasPermission($permissionName);
+    }
+
+    /**
+     * Get audit logs for this user.
+     */
+    public function auditLogs(): HasMany
+    {
+        return $this->hasMany(\App\Models\AuditLog::class, 'user_id');
     }
 
     /**

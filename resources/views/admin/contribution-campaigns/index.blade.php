@@ -22,25 +22,41 @@
                 <p class="header-subtitle">Manage monthly contribution campaigns and track progress</p>
                 <div class="header-stats">
                     <div class="stat-item">
-                        <span class="stat-number">{{ $campaigns->total() }}</span>
+                        <span class="stat-number">{{ $contributionCampaigns->total() }}</span>
                         <span class="stat-label">Total Campaigns</span>
                     </div>
                     <div class="stat-item">
-                        <span class="stat-number">{{ $campaigns->where('status', 'active')->count() }}</span>
+                        <span class="stat-number">{{ $contributionCampaigns->where('status', 'active')->count() }}</span>
                         <span class="stat-label">Active</span>
                     </div>
                     <div class="stat-item">
-                        <span class="stat-number">{{ $campaigns->where('status', 'completed')->count() }}</span>
+                        <span class="stat-number">{{ $contributionCampaigns->where('status', 'completed')->count() }}</span>
                         <span class="stat-label">Completed</span>
                     </div>
                     <div class="stat-item">
-                        <span class="stat-number">{{ $campaigns->sum('current_amount') > 0 ? 'RWF ' . number_format($campaigns->sum('current_amount'), 2) : 'RWF 0.00' }}</span>
+                        <span class="stat-number">{{ $contributionCampaigns->sum('current_amount') > 0 ? 'RWF ' . number_format($contributionCampaigns->sum('current_amount'), 2) : 'RWF 0.00' }}</span>
                         <span class="stat-label">Total Raised</span>
                     </div>
                 </div>
             </div>
         </div>
         <div class="header-actions">
+            <div class="export-buttons">
+                <a href="{{ route('admin.contribution-campaigns.export.excel', request()->query()) }}" class="btn btn-success enhanced-btn">
+                    <div class="btn-content">
+                        <i class="fas fa-file-excel"></i>
+                        <span>Export Excel</span>
+                    </div>
+                    <div class="btn-glow"></div>
+                </a>
+                <a href="{{ route('admin.contribution-campaigns.export.pdf', request()->query()) }}" class="btn btn-danger enhanced-btn">
+                    <div class="btn-content">
+                        <i class="fas fa-file-pdf"></i>
+                        <span>Export PDF</span>
+                    </div>
+                    <div class="btn-glow"></div>
+                </a>
+            </div>
             @permission('create_contribution_campaigns')
             <a href="{{ route('admin.contribution-campaigns.create') }}" class="btn btn-primary enhanced-btn">
                 <div class="btn-content">
@@ -143,7 +159,7 @@
             <i class="fas fa-calendar-alt"></i>
         </div>
         <div class="summary-content">
-            <span class="summary-number">{{ $campaigns->total() }}</span>
+            <span class="summary-number">{{ $contributionCampaigns->total() }}</span>
             <span class="summary-label">Total Campaigns</span>
         </div>
     </div>
@@ -153,7 +169,7 @@
             <i class="fas fa-hand-holding-heart"></i>
         </div>
         <div class="summary-content">
-            <span class="summary-number">{{ $campaigns->sum('current_amount') > 0 ? 'RWF ' . number_format($campaigns->sum('current_amount'), 2) : 'RWF 0.00' }}</span>
+            <span class="summary-number">{{ $contributionCampaigns->sum('current_amount') > 0 ? 'RWF ' . number_format($contributionCampaigns->sum('current_amount'), 2) : 'RWF 0.00' }}</span>
             <span class="summary-label">Total Raised</span>
         </div>
     </div>
@@ -163,7 +179,7 @@
             <i class="fas fa-play-circle"></i>
         </div>
         <div class="summary-content">
-            <span class="summary-number">{{ $campaigns->where('status', 'active')->count() }}</span>
+            <span class="summary-number">{{ $contributionCampaigns->where('status', 'active')->count() }}</span>
             <span class="summary-label">Active Campaigns</span>
         </div>
     </div>
@@ -173,7 +189,7 @@
             <i class="fas fa-check-circle"></i>
         </div>
         <div class="summary-content">
-            <span class="summary-number">{{ $campaigns->where('status', 'completed')->count() }}</span>
+            <span class="summary-number">{{ $contributionCampaigns->where('status', 'completed')->count() }}</span>
             <span class="summary-label">Completed</span>
         </div>
     </div>
@@ -188,15 +204,15 @@
                 Campaigns
             </h3>
             <div class="header-meta">
-                <span class="campaigns-count">{{ $campaigns->total() }} campaigns found</span>
+                <span class="campaigns-count">{{ $contributionCampaigns->total() }} campaigns found</span>
             </div>
         </div>
     </div>
 
     <div class="card-content">
-        @if($campaigns && $campaigns->count() > 0)
+        @if($contributionCampaigns && $contributionCampaigns->count() > 0)
         <div class="campaigns-grid enhanced-grid">
-            @foreach($campaigns as $campaign)
+            @foreach($contributionCampaigns as $campaign)
             <div class="campaign-card enhanced-card">
                 <div class="campaign-header">
                     <div class="campaign-type">
@@ -313,10 +329,14 @@
         </div>
 
         <!-- Enhanced Pagination -->
-        @if($campaigns->hasPages())
-        <div class="pagination-wrapper enhanced-pagination">
-            {{ $campaigns->appends(request()->query())->links() }}
-        </div>
+        @if($contributionCampaigns->hasPages())
+        <x-enhanced-pagination
+            :paginator="$contributionCampaigns"
+            :show-per-page-selector="true"
+            :per-page-options="[5, 10, 20, 50, 100]"
+            :show-page-info="true"
+            :show-jump-to-page="true"
+            :max-visible-pages="7" />
         @endif
 
         @else
@@ -347,6 +367,8 @@
 
 @endsection
 
+
+
 @push('scripts')
 <script>
     function toggleFilters() {
@@ -373,7 +395,12 @@
         progressBars.forEach(function(bar) {
             const width = bar.getAttribute('data-width');
             if (width) {
-                bar.style.width = width + '%';
+                // Set CSS custom property for the width
+                bar.style.setProperty('--progress-width', width + '%');
+                // Add animated class to trigger the animation
+                setTimeout(function() {
+                    bar.classList.add('animated');
+                }, 200);
             }
         });
 
