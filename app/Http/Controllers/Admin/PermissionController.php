@@ -64,6 +64,7 @@ class PermissionController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255|unique:permissions,name',
+            'display_name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'module' => 'required|string|max:100',
             'action' => 'required|string|max:100',
@@ -100,6 +101,7 @@ class PermissionController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255|unique:permissions,name,' . $permission->id,
+            'display_name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'module' => 'required|string|max:100',
             'action' => 'required|string|max:100',

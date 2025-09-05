@@ -14,6 +14,7 @@ class Permission extends Model
         'name',
         'display_name',
         'module',
+        'action',
         'description',
         'is_active',
     ];

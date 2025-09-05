@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Member;
 use App\Notifications\MemberRegisteredNotification;
 use App\Services\MemberExportService;
+use App\Services\CertificatePrintService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -158,13 +159,6 @@ class MemberController extends Controller
         return redirect()->route('admin.members.index')->with('success', 'Member deleted successfully.');
     }
 
-    /**
-     * Show certificate for the specified member.
-     */
-    public function showCertificate(Member $member)
-    {
-        return view('admin.members.certificate', compact('member'));
-    }
 
     /**
      * Generate and download PDF certificate for the specified member.
@@ -290,5 +284,40 @@ class MemberController extends Controller
     {
         $exportService = new MemberExportService();
         return $exportService->exportToPdf($request);
+    }
+
+    /**
+     * Print certificates for selected members
+     */
+    public function printCertificates(Request $request)
+    {
+        try {
+            $printService = new CertificatePrintService();
+            return $printService->printCertificates($request);
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', $e->getMessage());
+        }
+    }
+
+    /**
+     * Print certificates for filtered members
+     */
+    public function printFilteredCertificates(Request $request)
+    {
+        try {
+            $printService = new CertificatePrintService();
+            return $printService->printFilteredCertificates($request);
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', $e->getMessage());
+        }
+    }
+
+    /**
+     * Get certificate printing statistics
+     */
+    public function getCertificateStats(Request $request)
+    {
+        $printService = new CertificatePrintService();
+        return response()->json($printService->getCertificateStats($request));
     }
 }

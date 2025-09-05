@@ -63,8 +63,12 @@ Route::middleware(['auth', 'verified', \App\Http\Middleware\HandleLargeUploads::
 
         // Dynamic routes with parameters come AFTER static routes
         Route::get('members/{member}', [MemberController::class, 'show'])->name('members.show');
-        Route::get('members/{member}/certificate', [MemberController::class, 'showCertificate'])->name('members.certificate');
         Route::get('members/{member}/certificate/download', [MemberController::class, 'downloadCertificate'])->name('members.certificate.download');
+
+        // Certificate printing routes
+        Route::post('members/print-certificates', [MemberController::class, 'printCertificates'])->name('members.print-certificates');
+        Route::post('members/print-filtered-certificates', [MemberController::class, 'printFilteredCertificates'])->name('members.print-filtered-certificates');
+        Route::get('members/certificate-stats', [MemberController::class, 'getCertificateStats'])->name('members.certificate-stats');
 
         Route::middleware('permission:edit_members')->group(function () {
             Route::get('members/{member}/edit', [MemberController::class, 'edit'])->name('members.edit');
@@ -559,6 +563,5 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::put('/password', [ProfileController::class, 'updatePassword'])->name('password.update');
 });
-
 
 require __DIR__ . '/auth.php';

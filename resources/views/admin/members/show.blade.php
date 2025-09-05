@@ -38,14 +38,15 @@
         </div>
         <div class="header-actions">
             @permission('view_members')
-            <a href="{{ route('admin.members.certificate', $member) }}" class="btn btn-info enhanced-btn">
+            <a href="{{ route('admin.members.certificate.download', $member) }}" class="btn btn-success enhanced-btn">
                 <div class="btn-content">
-                    <i class="fas fa-certificate"></i>
-                    <span>View Certificate</span>
+                    <i class="fas fa-download"></i>
+                    <span>Download Certificate</span>
                 </div>
                 <div class="btn-glow"></div>
             </a>
             @endpermission
+
             @permission('edit_members')
             <a href="{{ route('admin.members.edit', $member) }}" class="btn btn-primary enhanced-btn">
                 <div class="btn-content">

@@ -51,8 +51,7 @@
             <!-- Export Actions -->
             <div class="export-actions">
                 <a href="{{ route('admin.members.export.excel', request()->query()) }}"
-                    class="btn btn-success enhanced-btn"
-                    title="Export to Excel">
+                    class="btn btn-success enhanced-btn" title="Export to Excel">
                     <div class="btn-content">
                         <i class="fas fa-file-excel"></i>
                         <span>Excel</span>
@@ -61,14 +60,32 @@
                 </a>
 
                 <a href="{{ route('admin.members.export.pdf', request()->query()) }}"
-                    class="btn btn-danger enhanced-btn"
-                    title="Export to PDF">
+                    class="btn btn-danger enhanced-btn" title="Export to PDF">
                     <div class="btn-content">
                         <i class="fas fa-file-pdf"></i>
                         <span>PDF</span>
                     </div>
                     <div class="btn-glow"></div>
                 </a>
+
+                <!-- Certificate Printing Actions -->
+                <button onclick="printSelectedCertificates()" class="btn btn-info enhanced-btn"
+                    title="Print Certificates for Selected Members" id="printSelectedBtn" disabled>
+                    <div class="btn-content">
+                        <i class="fas fa-certificate"></i>
+                        <span>Print Selected</span>
+                    </div>
+                    <div class="btn-glow"></div>
+                </button>
+
+                <button onclick="printFilteredCertificates()" class="btn btn-warning enhanced-btn"
+                    title="Print Certificates for All Filtered Members">
+                    <div class="btn-content">
+                        <i class="fas fa-print"></i>
+                        <span>Print All</span>
+                    </div>
+                    <div class="btn-glow"></div>
+                </button>
             </div>
         </div>
     </div>
@@ -98,8 +115,7 @@
                             <i class="fas fa-search"></i>
                         </div>
                         <input type="text" name="search" value="{{ request('search') }}"
-                            placeholder="Search by name, email, or phone..."
-                            class="search-input enhanced-input">
+                            placeholder="Search by name, email, or phone..." class="search-input enhanced-input">
                         <div class="search-glow"></div>
                     </div>
                 </div>
@@ -110,7 +126,8 @@
                         <select name="type" class="filter-select enhanced-select">
                             <option value="">All Types</option>
                             <option value="singer" {{ request('type') === 'singer' ? 'selected' : '' }}>Singers</option>
-                            <option value="general" {{ request('type') === 'general' ? 'selected' : '' }}>General Members</option>
+                            <option value="general" {{ request('type') === 'general' ? 'selected' : '' }}>General
+                                Members</option>
                         </select>
                     </div>
 
@@ -118,7 +135,8 @@
                         <label class="filter-label">Voice Part</label>
                         <select name="voice" class="filter-select enhanced-select">
                             <option value="">All Voice Parts</option>
-                            <option value="soprano" {{ request('voice') === 'soprano' ? 'selected' : '' }}>Soprano</option>
+                            <option value="soprano" {{ request('voice') === 'soprano' ? 'selected' : '' }}>Soprano
+                            </option>
                             <option value="alto" {{ request('voice') === 'alto' ? 'selected' : '' }}>Alto</option>
                             <option value="tenor" {{ request('voice') === 'tenor' ? 'selected' : '' }}>Tenor</option>
                             <option value="bass" {{ request('voice') === 'bass' ? 'selected' : '' }}>Bass</option>
@@ -129,8 +147,10 @@
                         <label class="filter-label">Status</label>
                         <select name="status" class="filter-select enhanced-select">
                             <option value="">All Status</option>
-                            <option value="Active" {{ request('status') === 'Active' ? 'selected' : '' }}>Active</option>
-                            <option value="Inactive" {{ request('status') === 'Inactive' ? 'selected' : '' }}>Inactive</option>
+                            <option value="Active" {{ request('status') === 'Active' ? 'selected' : '' }}>Active
+                            </option>
+                            <option value="Inactive" {{ request('status') === 'Inactive' ? 'selected' : '' }}>Inactive
+                            </option>
                         </select>
                     </div>
                 </div>
@@ -170,6 +190,9 @@
             <table class="data-table enhanced-table">
                 <thead>
                     <tr>
+                        <th class="th-select">
+                            <input type="checkbox" id="selectAll" onchange="toggleSelectAll()">
+                        </th>
                         <th class="th-photo">Photo</th>
                         <th class="th-name">Name & Contact</th>
                         <th class="th-type">Type</th>
@@ -184,6 +207,10 @@
                 <tbody>
                     @foreach($members as $member)
                     <tr class="member-row">
+                        <td data-label="Select" class="td-select">
+                            <input type="checkbox" class="member-checkbox" value="{{ $member->id }}"
+                                onchange="updatePrintButton()">
+                        </td>
                         <td data-label="Photo" class="td-photo">
                             @if($member->profile_photo)
                             <div class="member-photo enhanced-photo">
@@ -275,10 +302,10 @@
                                 @endpermission
 
                                 @permission('view_members')
-                                <a href="{{ route('admin.members.certificate', $member) }}"
-                                    class="btn btn-sm btn-info action-btn" title="View Certificate">
-                                    <i class="fas fa-certificate"></i>
-                                    <span class="btn-tooltip">Certificate</span>
+                                <a href="{{ route('admin.members.certificate.download', $member) }}"
+                                    class="btn btn-sm btn-success action-btn" title="Download Certificate">
+                                    <i class="fas fa-download"></i>
+                                    <span class="btn-tooltip">Download</span>
                                 </a>
                                 @endpermission
 
@@ -314,12 +341,8 @@
             </table>
         </div>
 
-        <x-enhanced-pagination
-            :paginator="$members"
-            :show-per-page-selector="true"
-            :per-page-options="[5, 10, 20, 50, 100]"
-            :show-page-info="true"
-            :show-jump-to-page="true"
+        <x-enhanced-pagination :paginator="$members" :show-per-page-selector="true"
+            :per-page-options="[5, 10, 20, 50, 100]" :show-page-info="true" :show-jump-to-page="true"
             :max-visible-pages="7" />
         @else
         <div class="empty-state enhanced-empty-state">
@@ -383,6 +406,35 @@
         transform: translateY(-2px);
         box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
     }
+
+    /* Certificate printing styles */
+    .th-select,
+    .td-select {
+        width: 50px;
+        text-align: center;
+    }
+
+    .th-select input[type="checkbox"],
+    .td-select input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+    }
+
+    .export-actions {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .export-actions .btn {
+        min-width: 120px;
+    }
+
+    .export-actions .btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
 </style>
 
 <script>
@@ -410,6 +462,268 @@
         const form = document.getElementById('filtersForm');
         form.style.display = 'none';
     });
+
+    // Certificate printing functions
+    function toggleSelectAll() {
+        const selectAllCheckbox = document.getElementById('selectAll');
+        const memberCheckboxes = document.querySelectorAll('.member-checkbox');
+
+        memberCheckboxes.forEach(checkbox => {
+            checkbox.checked = selectAllCheckbox.checked;
+        });
+
+        updatePrintButton();
+    }
+
+    function updatePrintButton() {
+        const selectedCheckboxes = document.querySelectorAll('.member-checkbox:checked');
+        const printSelectedBtn = document.getElementById('printSelectedBtn');
+
+        if (selectedCheckboxes.length > 0) {
+            printSelectedBtn.disabled = false;
+            printSelectedBtn.innerHTML = `
+                <div class="btn-content">
+                    <i class="fas fa-certificate"></i>
+                    <span>Print Selected (${selectedCheckboxes.length})</span>
+                </div>
+                <div class="btn-glow"></div>
+            `;
+        } else {
+            printSelectedBtn.disabled = true;
+            printSelectedBtn.innerHTML = `
+                <div class="btn-content">
+                    <i class="fas fa-certificate"></i>
+                    <span>Print Selected</span>
+                </div>
+                <div class="btn-glow"></div>
+            `;
+        }
+    }
+
+    function printSelectedCertificates() {
+        const selectedCheckboxes = document.querySelectorAll('.member-checkbox:checked');
+
+        if (selectedCheckboxes.length === 0) {
+            alert('Please select at least one member to print certificates.');
+            return;
+        }
+
+        const memberIds = Array.from(selectedCheckboxes).map(checkbox => checkbox.value);
+
+        // Create form and submit
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '{{ route("admin.members.print-certificates") }}';
+
+        // Add CSRF token
+        const csrfToken = document.createElement('input');
+        csrfToken.type = 'hidden';
+        csrfToken.name = '_token';
+        csrfToken.value = '{{ csrf_token() }}';
+        form.appendChild(csrfToken);
+
+        // Add member IDs
+        memberIds.forEach(id => {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'member_ids[]';
+            input.value = id;
+            form.appendChild(input);
+        });
+
+        document.body.appendChild(form);
+        form.submit();
+        document.body.removeChild(form);
+    }
+
+    function printFilteredCertificates() {
+        if (confirm('This will print certificates for all members matching the current filters. Continue?')) {
+            // Create form and submit
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '{{ route("admin.members.print-filtered-certificates") }}';
+
+            // Add CSRF token
+            const csrfToken = document.createElement('input');
+            csrfToken.type = 'hidden';
+            csrfToken.name = '_token';
+            csrfToken.value = '{{ csrf_token() }}';
+            form.appendChild(csrfToken);
+
+            // Add current filter parameters
+            const currentParams = new URLSearchParams(window.location.search);
+            currentParams.forEach((value, key) => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = key;
+                input.value = value;
+                form.appendChild(input);
+            });
+
+            document.body.appendChild(form);
+            form.submit();
+            document.body.removeChild(form);
+        }
+    }
+</script>
+
+.th-select,
+.td-select {
+width: 50px;
+text-align: center;
+}
+
+.th-select input[type="checkbox"],
+.td-select input[type="checkbox"] {
+width: 18px;
+height: 18px;
+cursor: pointer;
+}
+
+.export-actions {
+display: flex;
+gap: 0.5rem;
+flex-wrap: wrap;
+}
+
+.export-actions .btn {
+min-width: 120px;
+}
+
+.export-actions .btn:disabled {
+opacity: 0.5;
+cursor: not-allowed;
+}
+</style>
+
+<script>
+    function toggleFilters() {
+        const form = document.getElementById('filtersForm');
+        const toggleBtn = document.querySelector('.toggle-btn');
+        const icon = toggleBtn.querySelector('i');
+        const text = toggleBtn.querySelector('span');
+
+        if (form.style.display === 'none' || form.style.display === '') {
+            form.style.display = 'block';
+            icon.className = 'fas fa-chevron-up';
+            text.textContent = 'Hide Filters';
+            toggleBtn.classList.add('active');
+        } else {
+            form.style.display = 'none';
+            icon.className = 'fas fa-chevron-down';
+            text.textContent = 'Show Filters';
+            toggleBtn.classList.remove('active');
+        }
+    }
+
+    // Initialize filters as hidden by default
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('filtersForm');
+        form.style.display = 'none';
+    });
+
+    // Certificate printing functions
+    function toggleSelectAll() {
+        const selectAllCheckbox = document.getElementById('selectAll');
+        const memberCheckboxes = document.querySelectorAll('.member-checkbox');
+
+        memberCheckboxes.forEach(checkbox => {
+            checkbox.checked = selectAllCheckbox.checked;
+        });
+
+        updatePrintButton();
+    }
+
+    function updatePrintButton() {
+        const selectedCheckboxes = document.querySelectorAll('.member-checkbox:checked');
+        const printSelectedBtn = document.getElementById('printSelectedBtn');
+
+        if (selectedCheckboxes.length > 0) {
+            printSelectedBtn.disabled = false;
+            printSelectedBtn.innerHTML = `
+                <div class="btn-content">
+                    <i class="fas fa-certificate"></i>
+                    <span>Print Selected (${selectedCheckboxes.length})</span>
+                </div>
+                <div class="btn-glow"></div>
+            `;
+        } else {
+            printSelectedBtn.disabled = true;
+            printSelectedBtn.innerHTML = `
+                <div class="btn-content">
+                    <i class="fas fa-certificate"></i>
+                    <span>Print Selected</span>
+                </div>
+                <div class="btn-glow"></div>
+            `;
+        }
+    }
+
+    function printSelectedCertificates() {
+        const selectedCheckboxes = document.querySelectorAll('.member-checkbox:checked');
+
+        if (selectedCheckboxes.length === 0) {
+            alert('Please select at least one member to print certificates.');
+            return;
+        }
+
+        const memberIds = Array.from(selectedCheckboxes).map(checkbox => checkbox.value);
+
+        // Create form and submit
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '{{ route("admin.members.print-certificates") }}';
+
+        // Add CSRF token
+        const csrfToken = document.createElement('input');
+        csrfToken.type = 'hidden';
+        csrfToken.name = '_token';
+        csrfToken.value = '{{ csrf_token() }}';
+        form.appendChild(csrfToken);
+
+        // Add member IDs
+        memberIds.forEach(id => {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'member_ids[]';
+            input.value = id;
+            form.appendChild(input);
+        });
+
+        document.body.appendChild(form);
+        form.submit();
+        document.body.removeChild(form);
+    }
+
+    function printFilteredCertificates() {
+        if (confirm('This will print certificates for all members matching the current filters. Continue?')) {
+            // Create form and submit
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '{{ route("admin.members.print-filtered-certificates") }}';
+
+            // Add CSRF token
+            const csrfToken = document.createElement('input');
+            csrfToken.type = 'hidden';
+            csrfToken.name = '_token';
+            csrfToken.value = '{{ csrf_token() }}';
+            form.appendChild(csrfToken);
+
+            // Add current filter parameters
+            const currentParams = new URLSearchParams(window.location.search);
+            currentParams.forEach((value, key) => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = key;
+                input.value = value;
+                form.appendChild(input);
+            });
+
+            document.body.appendChild(form);
+            form.submit();
+            document.body.removeChild(form);
+        }
+    }
 </script>
 
 @endsection

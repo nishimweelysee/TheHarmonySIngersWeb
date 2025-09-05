@@ -217,22 +217,10 @@
                     </div>
 
                     <div class="form-group enhanced-group full-width">
-                        <label for="permission_key" class="form-label enhanced-label">
-                            <i class="fas fa-key"></i>
-                            Permission Key
-                        </label>
-                        <input type="text" id="permission_key" name="permission_key"
-                            class="form-input enhanced-input"
-                            value="{{ old('permission_key', $permission->permission_key) }}"
-                            placeholder="Auto-generated permission key" readonly>
-                        <div class="input-glow"></div>
                         <div class="form-help">
                             <i class="fas fa-info-circle"></i>
-                            This field is automatically generated from the module and action
+                            Permission name should follow the format: {action}_{module} (e.g., create_users, edit_members)
                         </div>
-                        @error('permission_key')
-                        <span class="error-message enhanced-error">{{ $message }}</span>
-                        @enderror
                     </div>
                 </div>
 
@@ -265,22 +253,6 @@
                             @enderror
                         </div>
 
-                        <div class="form-group enhanced-group">
-                            <label for="priority" class="form-label enhanced-label">
-                                <i class="fas fa-sort-numeric-up"></i>
-                                Priority Level
-                            </label>
-                            <select id="priority" name="priority" class="form-select enhanced-select">
-                                <option value="1" {{ old('priority', $permission->priority ?? 1) == 1 ? 'selected' : '' }}>Low (1)</option>
-                                <option value="2" {{ old('priority', $permission->priority ?? 2) == 2 ? 'selected' : '' }}>Medium (2)</option>
-                                <option value="3" {{ old('priority', $permission->priority ?? 3) == 3 ? 'selected' : '' }}>High (3)</option>
-                                <option value="4" {{ old('priority', $permission->priority ?? 4) == 4 ? 'selected' : '' }}>Critical (4)</option>
-                            </select>
-                            <div class="select-glow"></div>
-                            @error('priority')
-                            <span class="error-message enhanced-error">{{ $message }}</span>
-                            @enderror
-                        </div>
                     </div>
                 </div>
             </div>
@@ -307,17 +279,6 @@
 
 @push('scripts')
 <script>
-    // Auto-generate permission key from module and action
-    function updatePermissionKey() {
-        const module = document.getElementById('module').value;
-        const action = document.getElementById('action').value;
-        const keyField = document.getElementById('permission_key');
-
-        if (module && action) {
-            keyField.value = `${action}_${module}`;
-        }
-    }
-
     // Auto-generate display name from module and action
     function updateDisplayName() {
         const module = document.getElementById('module').value;
@@ -328,6 +289,17 @@
             const actionText = action.charAt(0).toUpperCase() + action.slice(1);
             const moduleText = module.charAt(0).toUpperCase() + module.slice(1);
             displayNameField.value = `${actionText} ${moduleText}`;
+        }
+    }
+
+    // Auto-generate permission name from module and action
+    function updatePermissionName() {
+        const module = document.getElementById('module').value;
+        const action = document.getElementById('action').value;
+        const nameField = document.getElementById('name');
+
+        if (module && action && !nameField.value) {
+            nameField.value = `${action}_${module}`;
         }
     }
 
@@ -386,18 +358,19 @@
 
     // Auto-update fields when module or action changes
     document.getElementById('module').addEventListener('change', function() {
-        updatePermissionKey();
+        updatePermissionName();
         updateDisplayName();
     });
 
     document.getElementById('action').addEventListener('change', function() {
-        updatePermissionKey();
+        updatePermissionName();
         updateDisplayName();
     });
 
-    // Initialize permission key on page load
+    // Initialize fields on page load
     document.addEventListener('DOMContentLoaded', function() {
-        updatePermissionKey();
+        updatePermissionName();
+        updateDisplayName();
     });
 </script>
 @endpush

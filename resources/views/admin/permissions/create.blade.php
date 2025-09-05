@@ -206,20 +206,10 @@
                     </div>
 
                     <div class="form-group enhanced-group full-width">
-                        <label for="permission_key" class="form-label enhanced-label">
-                            <i class="fas fa-key"></i>
-                            Permission Key
-                        </label>
-                        <input type="text" id="permission_key" name="permission_key"
-                            class="form-input enhanced-input"
-                            value="{{ old('permission_key') }}"
-                            placeholder="Auto-generated from module and action"
-                            readonly>
-                        <div class="input-glow"></div>
-                        <small class="form-help">This will be automatically generated from the module and action</small>
-                        @error('permission_key')
-                        <span class="error-message enhanced-error">{{ $message }}</span>
-                        @enderror
+                        <div class="form-help">
+                            <i class="fas fa-info-circle"></i>
+                            Permission name should follow the format: {action}_{module} (e.g., create_users, edit_members)
+                        </div>
                     </div>
                 </div>
 
@@ -252,22 +242,6 @@
                             @enderror
                         </div>
 
-                        <div class="form-group enhanced-group">
-                            <label for="priority" class="form-label enhanced-label">
-                                <i class="fas fa-sort-numeric-up"></i>
-                                Priority Level
-                            </label>
-                            <select id="priority" name="priority" class="form-select enhanced-select">
-                                <option value="1" {{ old('priority', 1) == 1 ? 'selected' : '' }}>Low (1)</option>
-                                <option value="2" {{ old('priority', 2) == 2 ? 'selected' : '' }}>Medium (2)</option>
-                                <option value="3" {{ old('priority', 3) == 3 ? 'selected' : '' }}>High (3)</option>
-                                <option value="4" {{ old('priority', 4) == 4 ? 'selected' : '' }}>Critical (4)</option>
-                            </select>
-                            <div class="select-glow"></div>
-                            @error('priority')
-                            <span class="error-message enhanced-error">{{ $message }}</span>
-                            @enderror
-                        </div>
                     </div>
 
                     <div class="form-group enhanced-group full-width">
@@ -309,16 +283,14 @@
 
 @push('scripts')
 <script>
-    // Auto-generate permission key from module and action
-    function generatePermissionKey() {
+    // Auto-generate permission name from module and action
+    function generatePermissionName() {
         const module = document.getElementById('module').value;
         const action = document.getElementById('action').value;
-        const keyField = document.getElementById('permission_key');
+        const nameField = document.getElementById('name');
 
-        if (module && action) {
-            keyField.value = `${action}_${module}`;
-        } else {
-            keyField.value = '';
+        if (module && action && !nameField.value) {
+            nameField.value = `${action}_${module}`;
         }
     }
 
@@ -337,12 +309,12 @@
 
     // Event listeners for auto-generation
     document.getElementById('module').addEventListener('change', function() {
-        generatePermissionKey();
+        generatePermissionName();
         generateDisplayName();
     });
 
     document.getElementById('action').addEventListener('change', function() {
-        generatePermissionKey();
+        generatePermissionName();
         generateDisplayName();
     });
 

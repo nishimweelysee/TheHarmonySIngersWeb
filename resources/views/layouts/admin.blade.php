@@ -19670,10 +19670,559 @@
                 box-shadow: none;
             }
         }
+
+        /* Enhanced Certificate Styles */
+        .certificate-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border: 3px solid #1e40af;
+            border-radius: 20px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            font-family: 'Times New Roman', serif;
+            color: #1e293b;
+            min-height: 600px;
+        }
+
+        /* Musical Staff Background */
+        .musical-staff-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            opacity: 0.1;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .staff-lines {
+            position: absolute;
+            top: 50%;
+            left: 10%;
+            right: 10%;
+            height: 2px;
+            background: repeating-linear-gradient(to right,
+                    #1e40af 0px,
+                    #1e40af 20px,
+                    transparent 20px,
+                    transparent 40px);
+            transform: translateY(-50%);
+        }
+
+        .staff-lines::before,
+        .staff-lines::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #1e40af;
+        }
+
+        .staff-lines::before {
+            top: -20px;
+        }
+
+        .staff-lines::after {
+            top: 20px;
+        }
+
+        .musical-notes {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+
+        .note {
+            position: absolute;
+            font-size: 2rem;
+            color: #1e40af;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .note-1 {
+            top: 20%;
+            left: 15%;
+            animation-delay: 0s;
+        }
+
+        .note-2 {
+            top: 30%;
+            right: 20%;
+            animation-delay: 1s;
+        }
+
+        .note-3 {
+            top: 60%;
+            left: 25%;
+            animation-delay: 2s;
+        }
+
+        .note-4 {
+            top: 70%;
+            right: 15%;
+            animation-delay: 3s;
+        }
+
+        .note-5 {
+            top: 40%;
+            left: 60%;
+            animation-delay: 4s;
+        }
+
+        .note-6 {
+            top: 80%;
+            right: 40%;
+            animation-delay: 5s;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0px) rotate(0deg);
+            }
+
+            50% {
+                transform: translateY(-10px) rotate(5deg);
+            }
+        }
+
+        /* Decorative Border */
+        .certificate-border {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        .corner-decoration {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            border: 3px solid #1e40af;
+            opacity: 0.6;
+        }
+
+        .corner-decoration.top-left {
+            top: 20px;
+            left: 20px;
+            border-right: none;
+            border-bottom: none;
+        }
+
+        .corner-decoration.top-right {
+            top: 20px;
+            right: 20px;
+            border-left: none;
+            border-bottom: none;
+        }
+
+        .corner-decoration.bottom-left {
+            bottom: 20px;
+            left: 20px;
+            border-right: none;
+            border-top: none;
+        }
+
+        .corner-decoration.bottom-right {
+            bottom: 20px;
+            right: 20px;
+            border-left: none;
+            border-top: none;
+        }
+
+        /* Certificate Content */
+        .certificate-content {
+            position: relative;
+            z-index: 3;
+            padding: 40px;
+            text-align: center;
+        }
+
+        /* Header Section */
+        .certificate-header-section {
+            margin-bottom: 30px;
+        }
+
+        .logo-section {
+            margin-bottom: 20px;
+        }
+
+        .choir-logo {
+            display: inline-block;
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #1e40af, #3b82f6);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            box-shadow: 0 8px 16px rgba(30, 64, 175, 0.3);
+        }
+
+        .choir-logo i {
+            font-size: 2.5rem;
+            color: white;
+        }
+
+        .main-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #1e40af;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            letter-spacing: 2px;
+        }
+
+        .subtitle {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 15px;
+            letter-spacing: 1px;
+        }
+
+        .title-underline {
+            width: 200px;
+            height: 3px;
+            background: linear-gradient(90deg, #1e40af, #3b82f6);
+            margin: 0 auto 20px;
+            border-radius: 2px;
+        }
+
+        .presenter-line {
+            font-size: 1rem;
+            color: #6b7280;
+            font-style: italic;
+        }
+
+        /* Member Name Section */
+        .member-name-section {
+            margin: 40px 0;
+        }
+
+        .name-underline {
+            width: 300px;
+            height: 4px;
+            background: linear-gradient(90deg, #1e40af, #3b82f6, #8b5cf6);
+            margin: 0 auto;
+            border-radius: 2px;
+        }
+
+        /* Scripture Section */
+        .scripture-section {
+            margin: 40px 0;
+            padding: 30px;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            border-radius: 15px;
+            border: 2px solid #e2e8f0;
+        }
+
+        .scripture-quote {
+            position: relative;
+        }
+
+        .quote-marks {
+            font-size: 4rem;
+            color: #1e40af;
+            font-weight: 700;
+            line-height: 1;
+            opacity: 0.3;
+        }
+
+        .verse-text {
+            font-size: 1.2rem;
+            color: #374151;
+            font-style: italic;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+
+        .verse-reference {
+            font-size: 1rem;
+            color: #1e40af;
+            font-weight: 600;
+            margin-top: 15px;
+        }
+
+        /* Appreciation Section */
+        .appreciation-section {
+            margin: 40px 0;
+        }
+
+        .appreciation-text {
+            font-size: 1.1rem;
+            color: #374151;
+            line-height: 1.8;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Member Details Section */
+        .member-details-section {
+            margin: 40px 0;
+        }
+
+        .member-info-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border: 2px solid #e2e8f0;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        .member-info {
+            font-size: 1.2rem;
+            color: #374151;
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+
+        .member-id {
+            font-size: 1rem;
+            color: #1e40af;
+            font-weight: 600;
+            background: #e0e7ff;
+            padding: 8px 16px;
+            border-radius: 20px;
+            display: inline-block;
+        }
+
+        /* Signature Section */
+        .signature-section {
+            display: flex;
+            justify-content: space-between;
+            margin: 50px 0 30px;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .signature-line {
+            text-align: center;
+            flex: 1;
+            margin: 0 20px;
+        }
+
+        .signature-line .line {
+            width: 150px;
+            height: 2px;
+            background: #1e40af;
+            margin: 0 auto 10px;
+        }
+
+        .signature-line .label {
+            font-size: 0.9rem;
+            color: #6b7280;
+            font-weight: 600;
+        }
+
+        /* Date Section */
+        .date-section {
+            margin: 30px 0;
+        }
+
+        .certificate-date {
+            font-size: 1.1rem;
+            color: #374151;
+            font-weight: 600;
+        }
+
+        /* Certificate Number */
+        .certificate-number {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            font-size: 0.9rem;
+            color: #6b7280;
+            font-weight: 600;
+            background: #f8fafc;
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+
+        /* Watermark */
+        .watermark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-45deg);
+            font-size: 8rem;
+            color: rgba(30, 64, 175, 0.05);
+            font-weight: 900;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* Certificate Actions */
+        .certificate-actions {
+            margin: 2rem 0;
+            text-align: center;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            border-radius: 15px;
+            padding: 2rem;
+            border: 1px solid #e2e8f0;
+        }
+
+        .certificate-actions .action-buttons {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .certificate-actions .primary-download {
+            min-width: 250px;
+            font-size: 1.1rem;
+            padding: 1rem 2rem;
+            background: linear-gradient(135deg, #10b981, #059669);
+            border: none;
+            box-shadow: 0 8px 16px rgba(16, 185, 129, 0.3);
+            transform: scale(1.05);
+        }
+
+        .certificate-actions .primary-download:hover {
+            transform: scale(1.08);
+            box-shadow: 0 12px 24px rgba(16, 185, 129, 0.4);
+        }
+
+        .certificate-actions .primary-download.downloading {
+            background: linear-gradient(135deg, #6b7280, #4b5563);
+            transform: scale(1.02);
+            cursor: not-allowed;
+        }
+
+        .certificate-actions .secondary-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .certificate-actions .secondary-actions .btn {
+            min-width: 120px;
+        }
+
+        .download-info {
+            margin-top: 1.5rem;
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .download-info .info-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+
+        .download-info .info-item i {
+            color: #10b981;
+            font-size: 1rem;
+        }
+
+        .direct-download-link {
+            color: #3b82f6;
+            text-decoration: underline;
+            font-weight: 600;
+        }
+
+        .direct-download-link:hover {
+            color: #1d4ed8;
+            text-decoration: none;
+        }
+
+        /* Certificate Wrapper */
+        .certificate-wrapper {
+            background: #f8fafc;
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 2rem 0;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Zoom Controls */
+        .zoom-controls {
+            display: flex;
+            gap: 0.5rem;
+            margin-left: auto;
+        }
+
+        .zoom-btn {
+            width: 40px;
+            height: 40px;
+            border: 1px solid #e2e8f0;
+            background: white;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .zoom-btn:hover {
+            background: #f8fafc;
+            border-color: #3b82f6;
+        }
+
+        .zoom-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Print Styles for Certificate */
+        @media print {
+            .certificate-container {
+                box-shadow: none;
+                border: 3px solid #000;
+                background: white;
+            }
+
+            .musical-staff-bg {
+                opacity: 0.15;
+            }
+
+            .note {
+                animation: none;
+            }
+
+            .main-title {
+                color: #000;
+            }
+
+            .subtitle {
+                color: #333;
+            }
+
+            .member-name {
+                color: #000;
+            }
+
+            .watermark {
+                opacity: 0.1;
+            }
+        }
     </style>
 
     <!-- TinyMCE WYSIWYG Editor -->
-    <script src="https://cdn.tiny.cloud/1/s13kred5sbpmspsjbqxccuer6faly6x2yvza6tytdayd01io/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+    <script src="https://cdn.tiny.cloud/1/s13kred5sbpmspsjbqxccuer6faly6x2yvza6tytdayd01io/tinymce/6/tinymce.min.js"
+        referrerpolicy="origin"></script>
 </head>
 
 <body>
@@ -20288,6 +20837,70 @@
     <!-- Render scripts pushed from views -->
     @stack('scripts')
 
+    <!-- General Responsive Content Management Script -->
+    <script>
+        // General responsive content management for all admin pages
+        document.addEventListener('DOMContentLoaded', function() {
+            const body = document.body;
+            const html = document.documentElement;
+
+            // Prevent body and html horizontal scroll
+            body.style.overflowX = 'hidden';
+            body.style.maxWidth = '100vw';
+            html.style.overflowX = 'hidden';
+            html.style.maxWidth = '100vw';
+
+            // Ensure all page elements fit within viewport
+            const allElements = document.querySelectorAll('*');
+            allElements.forEach(element => {
+                // Skip table containers as they need their own scroll
+                if (!element.classList.contains('table-container')) {
+                    element.style.maxWidth = '100%';
+                    element.style.boxSizing = 'border-box';
+                }
+            });
+
+            // Handle table containers specifically
+            const tableContainers = document.querySelectorAll('.table-container');
+            tableContainers.forEach(container => {
+                // Handle table scroll to prevent page scroll
+                container.addEventListener('wheel', function(e) {
+                    if (e.deltaX !== 0) {
+                        e.preventDefault();
+                        this.scrollLeft += e.deltaX;
+                    }
+                }, {
+                    passive: false
+                });
+
+                // Prevent page scroll when table is at scroll boundaries
+                container.addEventListener('scroll', function() {
+                    if (this.scrollLeft <= 0) {
+                        this.scrollLeft = 0;
+                    }
+                    const maxScroll = this.scrollWidth - this.clientWidth;
+                    if (this.scrollLeft >= maxScroll) {
+                        this.scrollLeft = maxScroll;
+                    }
+                });
+            });
+
+            // Handle window resize to ensure content fits
+            window.addEventListener('resize', function() {
+                const viewportWidth = window.innerWidth;
+                const mainContent = document.querySelector('.main-content');
+                if (mainContent) {
+                    const contentWidth = mainContent.scrollWidth;
+                    if (contentWidth > viewportWidth) {
+                        mainContent.style.maxWidth = viewportWidth + 'px';
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>
     <!-- General Responsive Content Management Script -->
     <script>
         // General responsive content management for all admin pages
