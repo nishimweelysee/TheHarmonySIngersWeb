@@ -2,14 +2,15 @@ name: Laravel THS CI/CD
 
 on:
   push:
-    branches: [main]
+    branches: [main, staging]
   pull_request:
-    branches: [main]
+    branches: [main, staging]
 
 env:
   SERVER_HOST: 158.220.121.106
   SERVER_USER: root
   DEPLOY_PATH: /opt/docker-compose/laravel_ths
+  STAGING_PATH: /opt/docker-compose-staging/laravel_ths
 
 jobs:
   test:
@@ -23,7 +24,7 @@ jobs:
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.3'
+          php-version: "8.3"
           extensions: mbstring, dom, fileinfo, mysql, pgsql
           coverage: none
           
@@ -50,11 +51,11 @@ jobs:
           DB_DATABASE: /tmp/forge/database.sqlite
         run: php artisan test
 
-  deploy:
+  deploy-staging:
     needs: test
     runs-on: ubuntu-latest
-    name: Deploy to Server
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    name: Deploy to Staging
+    if: github.ref == 'refs/heads/staging' && github.event_name == 'push'
     
     steps:
       - name: Checkout code
@@ -67,32 +68,110 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H ${{ env.SERVER_HOST }} >> ~/.ssh/known_hosts
           
-      - name: Deploy to Server
+      - name: Deploy to Staging
         run: |
           # Update code on server
-          echo "📥 Updating code on server..."
-          rsync -av --progress --exclude='node_modules/' --exclude='.next/' --exclude='.git/' --exclude='*.log' --exclude='target/' --exclude='vendor/' ./ root@${{ env.SERVER_HOST }}:${{ env.DEPLOY_PATH }}/
+          echo "📥 Updating code on staging server..."
+          rsync -av --progress --exclude='node_modules/' --exclude='.next/' --exclude='.git/' --exclude='*.log' --exclude='target/' --exclude='vendor/' ./ root@${{ env.SERVER_HOST }}:${{ env.STAGING_PATH }}/
           
-          # Connect to server and deploy
+          # Connect to server and deploy to staging
           ssh root@${{ env.SERVER_HOST }} << 'REMOTE_SCRIPT'
           set -e
           
-          echo "🔧 Starting server deployment..."
+          echo "🔧 Starting staging deployment..."
+          cd /opt/docker-compose-staging
+          
+          # Create staging directory if it doesn't exist
+          mkdir -p ${{ env.STAGING_PATH }}
+          
+          # Backup current staging deployment
+          echo "💾 Creating staging backup..."
+          BACKUP_DIR="/opt/backups/laravel-ths-staging-$(date +%Y%m%d_%H%M%S)"
+          mkdir -p $BACKUP_DIR
+          cp -r ${{ env.STAGING_PATH }} $BACKUP_DIR/ 2>/dev/null || true
+          
+          # Update environment files with staging IP
+          echo "🔧 Updating staging environment files..."
+          find ${{ env.STAGING_PATH }} -name "*.env*" -type f -exec sed -i 's/localhost/158.220.121.106/g' {} \;
+          find ${{ env.STAGING_PATH }} -name "*.env*" -type f -exec sed -i 's/203.161.58.38/158.220.121.106/g' {} \;
+          
+          # Build and deploy staging service
+          echo "🏗️ Building and deploying staging service..."
+          
+          # Stop and rebuild Laravel THS staging
+          docker-compose -f docker-compose.staging.yml stop laravel_ths_staging || true
+          docker-compose -f docker-compose.staging.yml build --no-cache laravel_ths_staging
+          docker-compose -f docker-compose.staging.yml up -d laravel_ths_staging
+          
+          # Wait for service to be healthy
+          echo "⏳ Waiting for staging service to be healthy..."
+          sleep 30
+          
+          # Check service health
+          echo "🔍 Checking staging service health..."
+          docker-compose -f docker-compose.staging.yml ps laravel_ths_staging
+          
+          # Test endpoint
+          echo "🧪 Testing staging endpoint..."
+          curl -f http://localhost:8001 > /dev/null && echo "✅ Laravel THS Staging: OK" || echo "❌ Laravel THS Staging: FAILED"
+          
+          echo "🎉 Laravel THS staging deployment completed successfully!"
+          REMOTE_SCRIPT
+          
+      - name: Notify Staging Deployment Status
+        if: always()
+        run: |
+          if [ ${{ job.status }} == 'success' ]; then
+            echo "🎉 Laravel THS staging deployment successful!"
+            echo "🌐 Staging URL: http://158.220.121.106:8001"
+          else
+            echo "❌ Laravel THS staging deployment failed!"
+          fi
+
+  deploy-production:
+    needs: test
+    runs-on: ubuntu-latest
+    name: Deploy to Production
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    environment: production
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Set up SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SERVER_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ env.SERVER_HOST }} >> ~/.ssh/known_hosts
+          
+      - name: Deploy to Production
+        run: |
+          # Update code on server
+          echo "📥 Updating code on production server..."
+          rsync -av --progress --exclude='node_modules/' --exclude='.next/' --exclude='.git/' --exclude='*.log' --exclude='target/' --exclude='vendor/' ./ root@${{ env.SERVER_HOST }}:${{ env.DEPLOY_PATH }}/
+          
+          # Connect to server and deploy to production
+          ssh root@${{ env.SERVER_HOST }} << 'REMOTE_SCRIPT'
+          set -e
+          
+          echo "🔧 Starting production deployment..."
           cd ${{ env.DEPLOY_PATH }}
           
-          # Backup current deployment
-          echo "💾 Creating backup..."
-          BACKUP_DIR="/opt/backups/laravel-ths-$(date +%Y%m%d_%H%M%S)"
+          # Backup current production deployment
+          echo "💾 Creating production backup..."
+          BACKUP_DIR="/opt/backups/laravel-ths-production-$(date +%Y%m%d_%H%M%S)"
           mkdir -p $BACKUP_DIR
           cp -r . $BACKUP_DIR/ 2>/dev/null || true
           
           # Update environment files with server IP
-          echo "🔧 Updating environment files..."
+          echo "🔧 Updating production environment files..."
           find . -name "*.env*" -type f -exec sed -i 's/localhost/158.220.121.106/g' {} \;
           find . -name "*.env*" -type f -exec sed -i 's/203.161.58.38/158.220.121.106/g' {} \;
           
-          # Build and deploy service
-          echo "🏗️ Building and deploying service..."
+          # Build and deploy production service
+          echo "🏗️ Building and deploying production service..."
           cd /opt/docker-compose
           
           # Stop and rebuild Laravel THS
@@ -101,25 +180,26 @@ jobs:
           docker-compose up -d laravel_ths
           
           # Wait for service to be healthy
-          echo "⏳ Waiting for service to be healthy..."
+          echo "⏳ Waiting for production service to be healthy..."
           sleep 30
           
           # Check service health
-          echo "🔍 Checking service health..."
+          echo "🔍 Checking production service health..."
           docker-compose ps laravel_ths
           
           # Test endpoint
-          echo "🧪 Testing endpoint..."
-          curl -f http://localhost:8000 > /dev/null && echo "✅ Laravel THS: OK" || echo "❌ Laravel THS: FAILED"
+          echo "🧪 Testing production endpoint..."
+          curl -f http://localhost:8000 > /dev/null && echo "✅ Laravel THS Production: OK" || echo "❌ Laravel THS Production: FAILED"
           
-          echo "🎉 Laravel THS deployment completed successfully!"
+          echo "🎉 Laravel THS production deployment completed successfully!"
           REMOTE_SCRIPT
           
-      - name: Notify Deployment Status
+      - name: Notify Production Deployment Status
         if: always()
         run: |
           if [ ${{ job.status }} == 'success' ]; then
-            echo "🎉 Laravel THS deployment successful!"
+            echo "🎉 Laravel THS production deployment successful!"
+            echo "🌐 Production URL: http://158.220.121.106:8000"
           else
-            echo "❌ Laravel THS deployment failed!"
+            echo "❌ Laravel THS production deployment failed!"
           fi
