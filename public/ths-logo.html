@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>THS Logo - The Harmony Singers</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: #f8fafc;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 40px;
+        }
+
+        .logo-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
+        }
+
+        .logo-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1e293b;
+            text-align: center;
+        }
+
+        /* Main Logo Design */
+        .ths-logo {
+            width: 300px;
+            height: 300px;
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 50%, #1e40af 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            box-shadow: 0 25px 50px -12px rgba(59, 130, 246, 0.4);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .ths-logo:hover {
+            transform: scale(1.05);
+            box-shadow: 0 35px 70px -12px rgba(59, 130, 246, 0.5);
+        }
+
+        .logo-text {
+            font-size: 4rem;
+            font-weight: 900;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            letter-spacing: 0.1em;
+        }
+
+        .music-notes {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .music-note {
+            position: absolute;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1.5rem;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .music-note:nth-child(1) {
+            top: 20%;
+            left: 15%;
+            animation-delay: 0s;
+        }
+
+        .music-note:nth-child(2) {
+            top: 25%;
+            right: 20%;
+            animation-delay: 1s;
+        }
+
+        .music-note:nth-child(3) {
+            bottom: 30%;
+            left: 20%;
+            animation-delay: 2s;
+        }
+
+        .music-note:nth-child(4) {
+            bottom: 25%;
+            right: 15%;
+            animation-delay: 1.5s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-10px) rotate(5deg); }
+        }
+
+        /* Alternative Logo Styles */
+        .logo-variants {
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .logo-variant {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .variant-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #475569;
+        }
+
+        /* Square Logo */
+        .ths-logo-square {
+            width: 200px;
+            height: 200px;
+            background: linear-gradient(135deg, #10b981 0%, #059669 50%, #047857 100%);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 20px 40px -12px rgba(16, 185, 129, 0.4);
+        }
+
+        .logo-text-square {
+            font-size: 3rem;
+            font-weight: 900;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Minimal Logo */
+        .ths-logo-minimal {
+            width: 150px;
+            height: 150px;
+            background: #1e293b;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 4px solid #3b82f6;
+        }
+
+        .logo-text-minimal {
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: #3b82f6;
+        }
+
+        /* Horizontal Logo */
+        .ths-logo-horizontal {
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 50%, #6d28d9 100%);
+            padding: 20px 40px;
+            border-radius: 50px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            box-shadow: 0 20px 40px -12px rgba(139, 92, 246, 0.4);
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #8b5cf6;
+            font-size: 1.5rem;
+        }
+
+        .logo-text-horizontal {
+            font-size: 2rem;
+            font-weight: 900;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Download Section */
+        .download-section {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 600px;
+        }
+
+        .download-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 20px;
+        }
+
+        .download-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .download-btn {
+            padding: 12px 24px;
+            background: #3b82f6;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: background 0.3s ease;
+        }
+
+        .download-btn:hover {
+            background: #2563eb;
+        }
+
+        .download-btn.secondary {
+            background: #6b7280;
+        }
+
+        .download-btn.secondary:hover {
+            background: #4b5563;
+        }
+
+        /* Instructions */
+        .instructions {
+            background: #f1f5f9;
+            padding: 20px;
+            border-radius: 12px;
+            max-width: 600px;
+            text-align: left;
+        }
+
+        .instructions h3 {
+            color: #1e293b;
+            margin-bottom: 15px;
+        }
+
+        .instructions ol {
+            color: #475569;
+            line-height: 1.6;
+        }
+
+        .instructions li {
+            margin-bottom: 8px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .ths-logo {
+                width: 250px;
+                height: 250px;
+            }
+
+            .logo-text {
+                font-size: 3rem;
+            }
+
+            .logo-variants {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .download-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="logo-container">
+        <h1 class="logo-title">The Harmony Singers Logo</h1>
+        
+        <!-- Main Logo -->
+        <div class="ths-logo">
+            <div class="logo-text">THS</div>
+            <div class="music-notes">
+                <div class="music-note">♪</div>
+                <div class="music-note">♫</div>
+                <div class="music-note">♩</div>
+                <div class="music-note">♬</div>
+            </div>
+        </div>
+
+        <!-- Logo Variants -->
+        <div class="logo-variants">
+            <div class="logo-variant">
+                <div class="variant-title">Square Version</div>
+                <div class="ths-logo-square">
+                    <div class="logo-text-square">THS</div>
+                </div>
+            </div>
+
+            <div class="logo-variant">
+                <div class="variant-title">Minimal Version</div>
+                <div class="ths-logo-minimal">
+                    <div class="logo-text-minimal">THS</div>
+                </div>
+            </div>
+
+            <div class="logo-variant">
+                <div class="variant-title">Horizontal Version</div>
+                <div class="ths-logo-horizontal">
+                    <div class="logo-icon">🎵</div>
+                    <div class="logo-text-horizontal">THS</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Download Section -->
+        <div class="download-section">
+            <h3 class="download-title">Download Logo</h3>
+            <div class="download-buttons">
+                <a href="#" class="download-btn" onclick="downloadLogo('main')">Download Main Logo</a>
+                <a href="#" class="download-btn secondary" onclick="downloadLogo('square')">Download Square</a>
+                <a href="#" class="download-btn secondary" onclick="downloadLogo('minimal')">Download Minimal</a>
+                <a href="#" class="download-btn secondary" onclick="downloadLogo('horizontal')">Download Horizontal</a>
+            </div>
+        </div>
+
+        <!-- Instructions -->
+        <div class="instructions">
+            <h3>How to Use This Logo:</h3>
+            <ol>
+                <li><strong>Website Header:</strong> Use the main circular logo for your website header and navigation</li>
+                <li><strong>Social Media:</strong> Use the square version for profile pictures and social media posts</li>
+                <li><strong>Print Materials:</strong> Use the minimal version for business cards and letterheads</li>
+                <li><strong>Banners:</strong> Use the horizontal version for banners and wide layouts</li>
+                <li><strong>Customization:</strong> You can modify colors, fonts, and sizes in the CSS code</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        // Function to download logo (placeholder - you'll need to implement actual image generation)
+        function downloadLogo(type) {
+            alert(`Download functionality for ${type} logo would be implemented here.\n\nTo get actual image files:\n1. Take screenshots of the logos\n2. Use browser dev tools to save as image\n3. Use online tools like html2canvas\n4. Or implement server-side image generation`);
+        }
+
+        // Add some interactive effects
+        document.addEventListener('DOMContentLoaded', function() {
+            const logos = document.querySelectorAll('.ths-logo, .ths-logo-square, .ths-logo-minimal, .ths-logo-horizontal');
+            
+            logos.forEach(logo => {
+                logo.addEventListener('mouseenter', function() {
+                    this.style.transform = 'scale(1.05)';
+                });
+                
+                logo.addEventListener('mouseleave', function() {
+                    this.style.transform = 'scale(1)';
+                });
+            });
+        });
+    </script>
+</body>
+</html>
